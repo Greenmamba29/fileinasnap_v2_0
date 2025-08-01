@@ -49,42 +49,54 @@ npm run agent:analytics   # View analytics
 
 ## 💰 Subscription Tiers
 
-FileInASnap offers 4 carefully designed tiers to match your needs:
+FileInASnap offers 5 carefully designed tiers to match your needs:
 
 ### 🌟 Standard - $9/month
-*Perfect for individuals getting started*
-- ✅ AI-powered file renaming and organization
-- ✅ Smart folder routing
-- ✅ Basic tagging system
-- ✅ 5GB cloud storage
-- ✅ 200 uploads/month
-- 🤖 **AI Model**: GPT-3.5 Turbo
+*GROQ-powered intelligence for individuals*
+- ✅ File upload + Smart Folder routing
+- ✅ Auto-tagging + scoring  
+- ✅ GROQ-powered AI agents
+- ✅ Limited journaling (read-only)
+- ✅ 5GB storage, 200 uploads/month
+- 🤖 **AI Model**: GROQ Llama3
 
 ### 🚀 Pro - $19/month (Most Popular)
-*For creators capturing memories*
-- ✅ **Everything in Standard**
-- ✅ AI journal analysis
-- ✅ Memory timeline view
-- ✅ Document text extraction
+*Gemini-enhanced for memory capture*
+- ✅ **All Standard features**
+- ✅ Full Journaling + Memory Timeline
+- ✅ Gemini 1.5 agents
+- ✅ Smart Folder creation + override
+- ✅ People tracing + memory filters
 - ✅ 25GB storage, 1000 uploads/month
+- 🤖 **AI Model**: Gemini 1.5 Pro
+
+### 🎨 Creator Plan - $14.99/month
+*Content optimization for creators*
+- ✅ Unlimited journaling + tagging
+- ✅ Gemini/GPT-4 content agent access
+- ✅ Video + audio upload support
+- ✅ Auto-captioning and summarization
+- ✅ Streamlined memory storytelling tools
+- ✅ 50GB storage, unlimited uploads
 - 🤖 **AI Model**: GPT-4
 
 ### ⚡ Veteran - $49/month  
-*Complete workflow management*
-- ✅ **Everything in Pro**
-- ✅ Face recognition & relationship mapping
-- ✅ AI story generation from memories
-- ✅ Custom workflow automation
-- ✅ Advanced UI override controls
+*Claude-powered agent chains*
+- ✅ **All Pro features**
+- ✅ Claude 3 agent chains
+- ✅ Voice assistant journaling
+- ✅ Admin override + agent feedback
+- ✅ API export + collaboration folders
 - ✅ 100GB storage, 5000 uploads/month
 - 🤖 **AI Model**: Claude 3 Sonnet
 
 ### 🏢 Enterprise - $149/month
-*For organizations requiring full control*
-- ✅ **Everything in Veteran**
-- ✅ Admin dashboard & analytics
-- ✅ API export capabilities
-- ✅ Priority support & custom integrations
+*Full control with audit trails*
+- ✅ **All Veteran features**
+- ✅ Dedicated admin dashboards
+- ✅ Audit trail + fallback analytics
+- ✅ Bulk org user onboarding
+- ✅ Custom SLAs and support
 - ✅ Unlimited storage and uploads
 - 🤖 **AI Model**: Claude 3 Opus
 
