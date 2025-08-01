@@ -4,397 +4,486 @@
 
 FileInASnap implements the **Build-Measure-Analyze-Deploy (BMAD)** methodology through a containerized agent architecture. Each AI agent operates independently while sharing common infrastructure and pricing logic.
 
-## 🎯 Core Architecture Principles
+## 🧠 BMAD Architecture Overview
 
-### 1. **Modular Agent Design**
-Each agent is a self-contained module with:
-- **Input validation** and plan verification
-- **AI model abstraction** based on subscription tier
-- **Error handling** with fallback mechanisms
-- **Performance monitoring** and analytics logging
+### **B**: Behavioral Flow – User Intent Triggers
+The behavioral layer captures user intent and maps it to appropriate agent workflows:
 
-### 2. **Subscription-Aware Gating**
-All agents integrate with the centralized pricing system:
-```typescript
-import { hasFeature, getAIConfig } from '../pricingConfig';
-
-export async function agentFunction(planName: PlanName, input: any) {
-  // Feature gate check
-  if (!hasFeature(planName, 'requiredFeature')) {
-    throw new Error('Feature not available in current plan');
-  }
-  
-  // Get AI model for this plan
-  const aiConfig = getAIConfig(planName);
-  const result = await callAIModel(aiConfig.primaryModel, input);
-  
-  return result;
-}
+```mermaid
+graph TD
+    A[User Intent] --> B{Action Type}
+    B -->|File Upload| C[Upload Flow]
+    B -->|Journal Entry| D[Journal Flow]
+    B -->|Memory Search| E[Search Flow]
+    
+    C --> F[FileOrganizer Agent]
+    D --> G[Journal Agent]
+    E --> H[Memory Agent]
+    
+    F --> I[AgentContainerRegistry]
+    G --> I
+    H --> I
 ```
 
-### 3. **BMAD Orchestration Flow**
+**Behavioral Triggers:**
+- **File Upload Flow**: User drags/drops files → triggers FileOrganizerAgent
+- **Journal Entry Flow**: User writes text/voice → triggers JournalAgent  
+- **Memory Exploration**: User searches memories → triggers MemoryAgent
+- **Story Creation**: User selects memories → triggers StoryAgent
+- **Analytics Request**: Admin views dashboard → triggers AnalyticsAgent
 
-#### Build Phase
-```typescript
-async function buildPhase(plan: PlanName) {
-  // Sequential agent execution
-  await buildFileIntelligence(plan);
-  await buildJournaling(plan);
-  await buildRelationship(plan);
-  await buildStoryModules(plan);
-}
-```
+### **M**: Modular Agents – Containerized AI Units
 
-#### Measure Phase
-```typescript
-function measurePhase() {
-  // Performance metrics collection
-  logAgentInvocation({
-    agentName: 'fileOrganizerAgent',
-    timestamp: new Date().toISOString(),
-    durationMs: executionTime,
-    success: true
-  });
-}
-```
+Each agent is a self-contained module with specific responsibilities:
 
-#### Analyze Phase
-```typescript
-function analyzePhase(plan: PlanName) {
-  // Analytics aggregation (Enterprise only)
-  if (hasFeature(plan, 'fallbackAnalytics')) {
-    const summary = getAnalyticsSummary(plan);
-    generateInsights(summary);
-  }
-}
-```
-
-#### Deploy Phase
-```typescript
-function deployPhase() {
-  // Results persistence to Supabase
-  // Webhook notifications to Make.com
-  // UI state updates
-}
-```
-
-## 🤖 Agent Container Registry
-
-### File Organizer Agent Container
+#### 🗂️ FileOrganizer Agent Container
 ```typescript
 interface FileOrganizerContainer {
   name: 'fileOrganizerAgent';
-  version: '1.0.0';
+  version: '2.0.0';
   
-  // Resource requirements
+  // Behavioral triggers
+  triggers: ['file.uploaded', 'folder.created', 'manual.organize'];
+  
+  // Sub-agents based on plan tier
+  subAgents: {
+    'standard': ['renamer', 'tagger', 'scorer'];
+    'pro': ['renamer', 'tagger', 'scorer', 'gemini-analyzer'];
+    'veteran': ['renamer', 'tagger', 'scorer', 'claude-processor', 'chain-optimizer'];
+    'enterprise': ['renamer', 'tagger', 'scorer', 'claude-opus', 'audit-logger'];
+    'creator': ['renamer', 'tagger', 'gpt4-content', 'video-captioner'];
+  };
+  
+  // Resource allocation by plan
   resources: {
-    cpu: '100m';
-    memory: '256Mi';
-    gpu: false;
+    'standard': { cpu: '100m', memory: '256Mi', groq: true };
+    'pro': { cpu: '200m', memory: '512Mi', gemini: true };
+    'veteran': { cpu: '400m', memory: '1Gi', claude: true, chaining: true };
+    'enterprise': { cpu: '800m', memory: '2Gi', claude: true, audit: true };
+    'creator': { cpu: '300m', memory: '768Mi', video: true, audio: true };
   };
-  
-  // AI model capabilities
-  models: {
-    'gpt-3.5-turbo': GPT35Handler;
-    'gpt-4': GPT4Handler;
-    'gemini-pro': GeminiHandler;
-  };
-  
-  // Feature dependencies
-  requires: ['fileIntelligence'];
-  
-  // Input/Output schemas
-  inputSchema: FileUploadSchema;
-  outputSchema: FileMetadataSchema;
 }
 ```
 
-### Journal Agent Container
+#### 📝 Journal Agent Container
 ```typescript
 interface JournalAgentContainer {
   name: 'journalAgent';
-  version: '1.0.0';
+  version: '2.0.0';
   
-  resources: {
-    cpu: '200m';
-    memory: '512Mi';
-    gpu: false;
+  triggers: ['journal.created', 'voice.recorded', 'memory.tagged'];
+  
+  subAgents: {
+    'standard': ['readonly-viewer'];
+    'pro': ['emotion-analyzer', 'memory-extractor', 'timeline-builder'];
+    'veteran': ['emotion-analyzer', 'memory-extractor', 'voice-processor', 'agent-chains'];
+    'enterprise': ['emotion-analyzer', 'memory-extractor', 'voice-processor', 'audit-tracker'];
+    'creator': ['emotion-analyzer', 'content-optimizer', 'story-suggester'];
   };
   
-  models: {
-    'gpt-4': EmotionAnalysisHandler;
-    'claude-3-sonnet': NarrativeHandler;
+  capabilities: {
+    voiceProcessing: ['veteran', 'enterprise'];
+    emotionAnalysis: ['pro', 'veteran', 'enterprise', 'creator'];
+    memoryTimeline: ['pro', 'veteran', 'enterprise', 'creator'];
+    agentChaining: ['veteran', 'enterprise'];
   };
-  
-  requires: ['journaling', 'documentParsing'];
-  
-  inputSchema: JournalEntrySchema;
-  outputSchema: JournalAnalysisSchema;
 }
 ```
 
-### Relationship Agent Container
+#### 👥 Relationship Agent Container
 ```typescript
 interface RelationshipAgentContainer {
   name: 'relationshipAgent';
-  version: '1.0.0';
+  version: '2.0.0';
+  
+  triggers: ['image.uploaded', 'face.detected', 'relationship.mapped'];
+  
+  subAgents: {
+    'veteran': ['face-detector', 'relationship-mapper', 'people-tracer'];
+    'enterprise': ['face-detector', 'relationship-mapper', 'people-tracer', 'audit-tracker'];
+  };
   
   resources: {
-    cpu: '500m';
-    memory: '1Gi';
-    gpu: true; // Face recognition requires GPU
-  };
-  
-  models: {
-    'claude-3-sonnet': FaceRecognitionHandler;
-    'claude-3-opus': RelationshipMappingHandler;
-  };
-  
-  requires: ['relationshipMapping', 'faceRecognition'];
-  
-  inputSchema: ImageBufferSchema;
-  outputSchema: RelationshipResultSchema;
-}
-```
-
-### Story Agent Container
-```typescript
-interface StoryAgentContainer {
-  name: 'storyAgent';
-  version: '1.0.0';
-  
-  resources: {
-    cpu: '300m';
-    memory: '768Mi';
-    gpu: false;
-  };
-  
-  models: {
-    'claude-3-sonnet': StoryGenerationHandler;
-    'claude-3-opus': NarrativeWeavingHandler;
-  };
-  
-  requires: ['storyGeneration'];
-  
-  inputSchema: StoryRequestSchema;
-  outputSchema: StorySummarySchema;
-}
-```
-
-### Analytics Agent Container
-```typescript
-interface AnalyticsAgentContainer {
-  name: 'analyticsAgent';
-  version: '1.0.0';
-  
-  resources: {
-    cpu: '150m';
-    memory: '384Mi';
-    gpu: false;
-  };
-  
-  models: {
-    'gpt-4': InsightGenerationHandler;
-  };
-  
-  requires: ['fallbackAnalytics'];
-  
-  inputSchema: AnalyticsQuerySchema;
-  outputSchema: AnalyticsSummarySchema;
-}
-```
-
-## 🔄 Data Flow Architecture
-
-### 1. **File Upload Pipeline**
-```mermaid
-graph TD
-    A[File Upload] --> B[Supabase Storage]
-    B --> C[Make.com Webhook]
-    C --> D[BMAD Orchestrator]
-    D --> E[File Organizer Agent]
-    E --> F[Plan Validation]
-    F --> G[AI Model Selection]
-    G --> H[Processing]
-    H --> I[Results Storage]
-    I --> J[UI Update]
-```
-
-### 2. **Agent Communication**
-```typescript
-interface AgentMessage {
-  agentId: string;
-  action: 'process' | 'status' | 'error';
-  payload: any;
-  metadata: {
-    planName: PlanName;
-    userId: string;
-    timestamp: string;
+    gpu: true, // Face recognition requires GPU
+    models: ['claude-3-sonnet', 'claude-3-opus'];
   };
 }
 ```
 
-### 3. **State Management**
+### **A**: Agent Logic Registry – Plan-Based Routing
+
+The AgentContainerRegistry intelligently selects and configures agents based on subscription tier:
+
 ```typescript
-interface ApplicationState {
-  // User context
-  currentPlan: PlanName;
-  userId: string;
+class AgentContainerRegistry {
+  // Map plan to available agents and their configurations
+  private planAgentMap: Record<PlanName, AgentConfig[]> = {
+    'standard': [
+      { agent: 'fileOrganizerAgent', model: 'groq-llama3', subAgents: ['renamer', 'tagger'] }
+    ],
+    'pro': [
+      { agent: 'fileOrganizerAgent', model: 'gemini-1.5-pro', subAgents: ['renamer', 'tagger', 'analyzer'] },
+      { agent: 'journalAgent', model: 'gemini-1.5-pro', subAgents: ['emotion', 'timeline'] }
+    ],
+    'veteran': [
+      { agent: 'fileOrganizerAgent', model: 'claude-3-sonnet', subAgents: ['full-stack'], chaining: true },
+      { agent: 'journalAgent', model: 'claude-3-sonnet', subAgents: ['voice', 'emotion', 'chains'] },
+      { agent: 'relationshipAgent', model: 'claude-3-sonnet', subAgents: ['face', 'mapping'] },
+      { agent: 'storyAgent', model: 'claude-3-sonnet', subAgents: ['narrative', 'generation'] }
+    ],
+    'enterprise': [
+      { agent: 'fileOrganizerAgent', model: 'claude-3-opus', subAgents: ['enterprise-full'], audit: true },
+      { agent: 'journalAgent', model: 'claude-3-opus', subAgents: ['enterprise-voice'], audit: true },
+      { agent: 'relationshipAgent', model: 'claude-3-opus', subAgents: ['enterprise-face'], audit: true },
+      { agent: 'storyAgent', model: 'claude-3-opus', subAgents: ['enterprise-story'], audit: true },
+      { agent: 'analyticsAgent', model: 'claude-3-opus', subAgents: ['dashboard', 'audit-trail'] }
+    ],
+    'creator': [
+      { agent: 'fileOrganizerAgent', model: 'gpt-4', subAgents: ['content-optimizer', 'video-processor'] },
+      { agent: 'journalAgent', model: 'gpt-4', subAgents: ['story-focused'] },
+      { agent: 'storyAgent', model: 'gpt-4', subAgents: ['creator-narrative'] }
+    ]
+  };
+
+  selectAgent(planName: PlanName, trigger: string): AgentContainer {
+    const availableAgents = this.planAgentMap[planName];
+    const matchingAgent = availableAgents.find(a => a.agent.handles(trigger));
+    
+    if (!matchingAgent) {
+      throw new PlanUpgradeRequiredError(`Feature requires ${this.getRequiredPlan(trigger)} plan`);
+    }
+    
+    return this.instantiateAgent(matchingAgent);
+  }
+}
+```
+
+### **D**: Drag-and-Drop Deployment – Deployable Blocks
+
+FileInASnap components are designed as deployable blocks for easy integration:
+
+#### Lovable UI Blocks
+```typescript
+// Deployable UI components for Lovable
+export const FileInASnapBlocks = {
+  UploadZone: {
+    component: 'SmartUploadZone',
+    props: ['planName', 'onUpload', 'features'],
+    integrations: ['supabase-storage', 'make-webhook']
+  },
   
-  // Agent states
-  agents: {
-    [agentName: string]: {
-      status: 'idle' | 'processing' | 'error';
-      lastRun: string;
-      metrics: AgentMetrics;
+  MemoryTimeline: {
+    component: 'MemoryTimeline', 
+    props: ['planName', 'memories', 'filters'],
+    requiredPlan: 'pro'
+  },
+  
+  StoryGenerator: {
+    component: 'StoryCreationWizard',
+    props: ['planName', 'memories', 'onGenerate'],
+    requiredPlan: 'veteran'
+  },
+  
+  AnalyticsDashboard: {
+    component: 'AnalyticsDashboard',
+    props: ['planName', 'data', 'dateRange'],
+    requiredPlan: 'enterprise'
+  }
+};
+```
+
+#### Emergent Agent Blocks
+```typescript
+// Deployable agent containers for Emergent
+export const AgentBlocks = {
+  FileOrganizer: {
+    container: 'fileinasnap/file-organizer:v2.0.0',
+    scaling: 'plan-based',
+    triggers: ['file.uploaded'],
+    integrations: ['supabase', 'make-webhook']
+  },
+  
+  JournalProcessor: {
+    container: 'fileinasnap/journal-agent:v2.0.0',
+    scaling: 'plan-based',
+    triggers: ['journal.created', 'voice.uploaded'],
+    requiredPlans: ['pro', 'veteran', 'enterprise', 'creator']
+  },
+  
+  RelationshipMapper: {
+    container: 'fileinasnap/relationship-agent:v2.0.0',
+    resources: { gpu: true },
+    triggers: ['image.uploaded'],
+    requiredPlans: ['veteran', 'enterprise']
+  }
+};
+```
+
+## ⚙️ Agent Lifecycle
+
+### 1. **User Intent Recognition**
+```typescript
+// User uploads a file or writes a journal entry
+const userAction = {
+  type: 'file.uploaded',
+  planName: 'pro',
+  userId: 'user_123',
+  data: fileBuffer
+};
+```
+
+### 2. **Agent Selection by Registry**
+```typescript
+// AgentContainerRegistry selects correct agent based on plan
+const selectedAgent = registry.selectAgent(userAction.planName, userAction.type);
+
+// For Pro plan file upload:
+// → FileOrganizerAgent with Gemini 1.5 Pro
+// → SubAgents: [renamer, tagger, analyzer, folder-creator]
+```
+
+### 3. **Sub-Agent Orchestration**
+```typescript
+// Agent runs sub-agents based on plan capabilities
+const agentChain = selectedAgent.createChain([
+  'renamer',      // Smart file renaming
+  'tagger',       // Auto-tagging with AI
+  'analyzer',     // Content analysis (Pro+)
+  'folder-creator' // Smart folder routing (Pro+)
+]);
+
+const result = await agentChain.execute(userAction.data);
+```
+
+### 4. **Output Processing & Storage**
+```typescript
+// Output saved to Supabase with plan-aware metadata
+const output = {
+  fileId: result.fileId,
+  originalName: result.originalName,
+  newName: result.aiGeneratedName,
+  tags: result.aiGeneratedTags,
+  planUsed: userAction.planName,
+  agentChain: result.executedAgents,
+  aiModel: selectedAgent.aiConfig.primaryModel,
+  processingTime: result.duration
+};
+
+await supabase.from('files').insert(output);
+```
+
+### 5. **UI Update & Webhook Notification**
+```typescript
+// Dashboard or Lovable UI shows result
+ui.updateFileList(output);
+ui.showPlanFeatures(userAction.planName);
+
+// Make.com webhook triggers downstream workflows
+await makeWebhook.trigger('file.processed', {
+  fileId: output.fileId,
+  planName: userAction.planName,
+  features: output.planFeatures
+});
+```
+
+## 🔗 Integration Architecture
+
+### **Supabase Integration**
+
+#### File Storage & Metadata
+```sql
+-- Files table with plan-aware structure
+CREATE TABLE files (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  plan_name TEXT NOT NULL,
+  original_name TEXT NOT NULL,
+  ai_generated_name TEXT,
+  tags TEXT[],
+  ai_model TEXT,
+  agent_chain TEXT[],
+  processing_metadata JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Journal stream with emotion analysis
+CREATE TABLE journal_entries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  plan_name TEXT NOT NULL,
+  content TEXT NOT NULL,
+  emotions JSONB,
+  extracted_files UUID[],
+  voice_recording_url TEXT,
+  ai_summary TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Audit logs for Enterprise
+CREATE TABLE audit_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  plan_name TEXT NOT NULL,
+  action TEXT NOT NULL,
+  agent_name TEXT,
+  metadata JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+#### Real-time Subscriptions
+```typescript
+// Real-time updates for file processing
+const subscription = supabase
+  .channel('file-processing')
+  .on('postgres_changes', {
+    event: 'INSERT',
+    schema: 'public',
+    table: 'files',
+    filter: `user_id=eq.${userId}`
+  }, (payload) => {
+    ui.updateFileProcessingStatus(payload.new);
+  })
+  .subscribe();
+```
+
+### **Make.com Workflow Integration**
+
+#### Event Trigger Configurations
+```json
+{
+  "triggers": [
+    {
+      "name": "File Upload Trigger",
+      "webhook": "https://hook.us1.make.com/abc123",
+      "events": ["file.uploaded"],
+      "filters": {
+        "planName": ["pro", "veteran", "enterprise", "creator"]
+      }
+    },
+    {
+      "name": "Journal Analysis Trigger", 
+      "webhook": "https://hook.us1.make.com/def456",
+      "events": ["journal.analyzed"],
+      "filters": {
+        "hasEmotions": true,
+        "planName": ["pro", "veteran", "enterprise", "creator"]
+      }
+    },
+    {
+      "name": "Story Generation Trigger",
+      "webhook": "https://hook.us1.make.com/ghi789", 
+      "events": ["story.generated"],
+      "filters": {
+        "planName": ["veteran", "enterprise", "creator"]
+      }
+    }
+  ]
+}
+```
+
+#### Agent-to-Make.com Routing
+```typescript
+class MakeIntegration {
+  async routeAgentOutput(agentResult: AgentOutput): Promise<void> {
+    const webhookUrl = this.getWebhookForAgent(agentResult.agentName);
+    
+    const payload = {
+      timestamp: new Date().toISOString(),
+      agentName: agentResult.agentName,
+      planName: agentResult.planName,
+      userId: agentResult.userId,
+      data: agentResult.output,
+      planFeatures: this.getPlanFeatures(agentResult.planName)
     };
-  };
-  
-  // Feature flags
-  features: PlanFeatures;
-  
-  // Usage tracking
-  usage: {
-    storageUsed: number;
-    uploadsThisMonth: number;
-    apiCallsThisMonth: number;
-  };
+    
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  }
 }
 ```
 
-## 🔧 Configuration Management
+### **Toolhouse Agent Fallback & Chaining**
 
-### Environment-Based Configuration
+#### Fallback Configuration
 ```typescript
-interface EnvironmentConfig {
-  // AI API Keys
-  OPENAI_API_KEY: string;
-  ANTHROPIC_API_KEY: string;  
-  GOOGLE_API_KEY: string;
+interface ToolhouseConfig {
+  fallbackRules: {
+    'groq-llama3': {
+      primary: 'groq-llama3',
+      fallback: ['gemini-1.5-pro', 'toolhouse-generic'],
+      timeout: 30000
+    },
+    'claude-3-opus': {
+      primary: 'claude-3-opus', 
+      fallback: ['claude-3-sonnet', 'toolhouse-premium'],
+      timeout: 60000
+    }
+  };
   
-  // Storage & Database
-  SUPABASE_URL: string;
-  SUPABASE_ANON_KEY: string;
-  MONGO_URL: string;
-  
-  // Orchestration
-  MAKE_WEBHOOK_URL: string;
-  MAKE_API_KEY: string;
-  
-  // Performance
-  MAX_CONCURRENT_AGENTS: number;
-  AGENT_TIMEOUT_MS: number;
-  RETRY_ATTEMPTS: number;
-}
-```
-
-### Dynamic Plan Configuration
-```typescript
-// Automatically loads active pricing experiment
-const currentPricing = getActivePricing();
-
-// Feature availability check
-const canUseStories = hasFeature(userPlan, 'storyGeneration');
-
-// AI model selection
-const aiConfig = getAIConfig(userPlan);
-```
-
-## 📊 Monitoring & Observability
-
-### Agent Health Checks
-```typescript
-interface AgentHealthCheck {
-  agentName: string;
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  lastHealthCheck: string;
-  responseTime: number;
-  errorRate: number;
-  resourceUsage: {
-    cpu: number;
-    memory: number;
-    gpu?: number;
+  chainingSupport: {
+    'veteran': true,
+    'enterprise': true
   };
 }
 ```
 
-### Performance Metrics
+#### Agent Chaining (Veteran+ Plans)
 ```typescript
-interface AgentMetrics {
-  totalInvocations: number;
-  successRate: number;
-  averageResponseTime: number;
-  errorBreakdown: Record<string, number>;
-  resourceUtilization: ResourceUsage;
-  costMetrics: {
-    apiCallCost: number;
-    computeCost: number;
-    storageCost: number;
-  };
-}
+// Multi-agent chains for complex workflows
+const veteranChain = new AgentChain([
+  {
+    agent: 'fileOrganizerAgent',
+    model: 'claude-3-sonnet',
+    output: 'structured-metadata'
+  },
+  {
+    agent: 'relationshipAgent', 
+    model: 'claude-3-sonnet',
+    input: 'structured-metadata',
+    output: 'relationship-data'
+  },
+  {
+    agent: 'storyAgent',
+    model: 'claude-3-sonnet', 
+    input: ['structured-metadata', 'relationship-data'],
+    output: 'generated-story'
+  }
+]);
+
+const chainResult = await veteranChain.execute(inputData);
 ```
 
-## 🚀 Deployment Architecture
+## 🔄 Plan-Based Feature Evolution
 
-### Container Orchestration
-```yaml
-# docker-compose.yml
-version: '3.8'
-services:
-  bmad-orchestrator:
-    image: fileinasnap/orchestrator:latest
-    environment:
-      - NODE_ENV=production
-    depends_on:
-      - file-agent
-      - journal-agent
-      - relationship-agent
-      - story-agent
+### Feature Progression Matrix
+```typescript
+const FeatureProgression = {
+  'fileIntelligence': {
+    'standard': 'basic-groq-processing',
+    'pro': 'gemini-enhanced-analysis', 
+    'veteran': 'claude-semantic-understanding',
+    'enterprise': 'claude-opus-maximum-accuracy',
+    'creator': 'gpt4-content-optimization'
+  },
   
-  file-agent:
-    image: fileinasnap/file-agent:latest
-    resources:
-      limits:
-        cpus: '0.5'
-        memory: 512M
+  'journaling': {
+    'standard': 'readonly-view-only',
+    'pro': 'full-gemini-emotion-analysis',
+    'veteran': 'claude-voice-assistant-chains',
+    'enterprise': 'claude-opus-audit-everything',
+    'creator': 'gpt4-story-focused-analysis'
+  },
   
-  journal-agent:
-    image: fileinasnap/journal-agent:latest  
-    resources:
-      limits:
-        cpus: '0.7'
-        memory: 768M
+  'storyGeneration': {
+    'veteran': 'claude-narrative-generation',
+    'enterprise': 'claude-opus-enterprise-stories',
+    'creator': 'gpt4-creator-optimized-stories'
+  }
+};
 ```
 
-### Scaling Strategy
-- **Horizontal Scaling**: Multiple agent instances for high throughput
-- **Vertical Scaling**: Increase resources based on subscription tier
-- **Auto-scaling**: Dynamic scaling based on queue depth and response times
-
-## 🔐 Security Architecture
-
-### Agent Isolation
-- Each agent runs in isolated containers
-- Network policies restrict inter-agent communication
-- Resource limits prevent resource exhaustion
-
-### Data Protection
-- End-to-end encryption for file storage
-- API key rotation and secure storage
-- User data isolation by tenant
-
-### Access Control
-- Plan-based feature gating at agent level
-- API rate limiting based on subscription tier
-- Audit logging for all agent invocations
-
-## 🔮 Future Architecture Evolution
-
-### Planned Enhancements
-1. **Multi-region Deployment** - Global agent distribution
-2. **Edge Computing** - Local agent processing for privacy
-3. **Custom Agent Development** - User-defined agent creation
-4. **Real-time Streaming** - Live agent result streaming
-5. **AI Model Fine-tuning** - User-specific model customization
-
-This architecture ensures FileInASnap can scale from individual users to enterprise deployments while maintaining modularity, performance, and cost-effectiveness.
+This BMAD architecture ensures FileInASnap can intelligently route user intentions through appropriate AI agents based on subscription tiers, while maintaining modularity and scalability for both Lovable UI integration and Emergent agent deployment.

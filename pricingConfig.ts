@@ -63,6 +63,8 @@ export interface PlanLimits {
   maxUsers: number;
   maxWorkflows: number;
   apiRateLimit: number; // requests per minute
+  maxVoiceMinutes: number; // for voice assistant
+  maxVideoMinutes: number; // for video processing
 }
 
 export interface PricingTier {
@@ -80,6 +82,8 @@ export interface PricingTier {
   highlights: string[];
   /** Call-to-action button text */
   ctaText: string;
+  /** Special onboarding conditions */
+  onboardingCondition?: string;
 }
 
 /**
@@ -94,7 +98,7 @@ export interface PricingExperiment {
   tiers: PricingTier[];
 }
 
-// Default Pricing Configuration
+// Updated Pricing Configuration based on new structure
 export const DEFAULT_PRICING: PricingTier[] = [
   {
     id: 'standard',
@@ -106,19 +110,30 @@ export const DEFAULT_PRICING: PricingTier[] = [
     features: {
       fileIntelligence: true,
       smartFolderRouting: true,
-      journaling: false,
+      smartFolderCreation: false,
+      journaling: 'readonly',
       memoryTimeline: false,
-      documentParsing: false,
+      documentParsing: true,
+      voiceAssistant: false,
+      videoCaptioning: false,
+      audioSupport: false,
       relationshipMapping: false,
       faceRecognition: false,
       storyGeneration: false,
+      peopleTracing: false,
+      memoryFilters: false,
       workflowManagement: false,
-      overrideUI: false,
+      adminOverride: false,
+      agentFeedback: false,
       adminDashboard: false,
+      auditTrail: false,
       fallbackAnalytics: false,
       apiExport: false,
+      collaborationFolders: false,
+      bulkUserOnboarding: false,
       premiumSupport: false,
-      customIntegrations: false,
+      customSLAs: false,
+      dedicatedSupport: false,
     },
     limits: {
       maxStorageGB: 5,
@@ -126,17 +141,20 @@ export const DEFAULT_PRICING: PricingTier[] = [
       maxUsers: 1,
       maxWorkflows: 0,
       apiRateLimit: 10,
+      maxVoiceMinutes: 0,
+      maxVideoMinutes: 0,
     },
     aiConfig: {
-      primaryModel: 'gpt-3.5-turbo',
-      fallbackModel: 'gemini-pro',
+      primaryModel: 'groq-llama3',
+      fallbackModel: 'gemini-1.5-pro',
       maxApiCalls: 1000,
+      supportsChaining: false,
     },
     highlights: [
-      'AI-powered file renaming',
-      'Smart folder organization',
-      'Basic tagging system',
-      '5GB cloud storage'
+      'File upload + Smart Folder routing',
+      'Auto-tagging + scoring',
+      'GROQ-powered AI agents',
+      'Limited journaling (read-only)'
     ],
     ctaText: 'Start Organizing',
   },
@@ -152,19 +170,30 @@ export const DEFAULT_PRICING: PricingTier[] = [
     features: {
       fileIntelligence: true,
       smartFolderRouting: true,
-      journaling: true,
+      smartFolderCreation: true,
+      journaling: 'full',
       memoryTimeline: true,
       documentParsing: true,
+      voiceAssistant: false,
+      videoCaptioning: false,
+      audioSupport: false,
       relationshipMapping: false,
       faceRecognition: false,
       storyGeneration: false,
+      peopleTracing: true,
+      memoryFilters: true,
       workflowManagement: false,
-      overrideUI: false,
+      adminOverride: true,
+      agentFeedback: false,
       adminDashboard: false,
+      auditTrail: false,
       fallbackAnalytics: false,
       apiExport: false,
+      collaborationFolders: false,
+      bulkUserOnboarding: false,
       premiumSupport: false,
-      customIntegrations: false,
+      customSLAs: false,
+      dedicatedSupport: false,
     },
     limits: {
       maxStorageGB: 25,
@@ -172,18 +201,21 @@ export const DEFAULT_PRICING: PricingTier[] = [
       maxUsers: 3,
       maxWorkflows: 5,
       apiRateLimit: 30,
+      maxVoiceMinutes: 0,
+      maxVideoMinutes: 0,
     },
     aiConfig: {
-      primaryModel: 'gpt-4',
-      fallbackModel: 'gemini-pro',
+      primaryModel: 'gemini-1.5-pro',
+      fallbackModel: 'gpt-4',
       maxApiCalls: 5000,
+      supportsChaining: false,
     },
     highlights: [
-      'Everything in Standard',
-      'AI journal analysis',
-      'Memory timeline view',
-      'Document text extraction',
-      'GPT-4 powered insights'
+      'All Standard features',
+      'Full Journaling + Memory Timeline',
+      'Gemini 1.5 agents',
+      'Smart Folder creation + override',
+      'People tracing + memory filters'
     ],
     ctaText: 'Upgrade to Pro',
   },
@@ -198,19 +230,30 @@ export const DEFAULT_PRICING: PricingTier[] = [
     features: {
       fileIntelligence: true,
       smartFolderRouting: true,
-      journaling: true,
+      smartFolderCreation: true,
+      journaling: 'full',
       memoryTimeline: true,
       documentParsing: true,
+      voiceAssistant: true,
+      videoCaptioning: false,
+      audioSupport: true,
       relationshipMapping: true,
       faceRecognition: true,
       storyGeneration: true,
+      peopleTracing: true,
+      memoryFilters: true,
       workflowManagement: true,
-      overrideUI: true,
+      adminOverride: true,
+      agentFeedback: true,
       adminDashboard: false,
+      auditTrail: false,
       fallbackAnalytics: false,
-      apiExport: false,
+      apiExport: true,
+      collaborationFolders: true,
+      bulkUserOnboarding: false,
       premiumSupport: false,
-      customIntegrations: false,
+      customSLAs: false,
+      dedicatedSupport: false,
     },
     limits: {
       maxStorageGB: 100,
@@ -218,19 +261,21 @@ export const DEFAULT_PRICING: PricingTier[] = [
       maxUsers: 10,
       maxWorkflows: 25,
       apiRateLimit: 100,
+      maxVoiceMinutes: 500,
+      maxVideoMinutes: 0,
     },
     aiConfig: {
       primaryModel: 'claude-3-sonnet',
       fallbackModel: 'gpt-4',
       maxApiCalls: 15000,
+      supportsChaining: true,
     },
     highlights: [
-      'Everything in Pro',
-      'Face recognition & relationships',
-      'AI story generation',
-      'Custom workflow automation',
-      'Advanced UI controls',
-      'Claude AI integration'
+      'All Pro features',
+      'Claude 3 agent chains',
+      'Voice assistant journaling',
+      'Admin override + agent feedback',
+      'API export + collaboration folders'
     ],
     ctaText: 'Go Veteran',
   },
@@ -245,19 +290,30 @@ export const DEFAULT_PRICING: PricingTier[] = [
     features: {
       fileIntelligence: true,
       smartFolderRouting: true,
-      journaling: true,
+      smartFolderCreation: true,
+      journaling: 'full',
       memoryTimeline: true,
       documentParsing: true,
+      voiceAssistant: true,
+      videoCaptioning: true,
+      audioSupport: true,
       relationshipMapping: true,
       faceRecognition: true,
       storyGeneration: true,
+      peopleTracing: true,
+      memoryFilters: true,
       workflowManagement: true,
-      overrideUI: true,
+      adminOverride: true,
+      agentFeedback: true,
       adminDashboard: true,
+      auditTrail: true,
       fallbackAnalytics: true,
       apiExport: true,
+      collaborationFolders: true,
+      bulkUserOnboarding: true,
       premiumSupport: true,
-      customIntegrations: true,
+      customSLAs: true,
+      dedicatedSupport: true,
     },
     limits: {
       maxStorageGB: Infinity,
@@ -265,21 +321,84 @@ export const DEFAULT_PRICING: PricingTier[] = [
       maxUsers: Infinity,
       maxWorkflows: Infinity,
       apiRateLimit: 1000,
+      maxVoiceMinutes: Infinity,
+      maxVideoMinutes: Infinity,
     },
     aiConfig: {
       primaryModel: 'claude-3-opus',
       fallbackModel: 'claude-3-sonnet',
       maxApiCalls: Infinity,
+      supportsChaining: true,
     },
     highlights: [
-      'Everything in Veteran',
-      'Admin dashboard & analytics',
-      'API export capabilities',
-      'Priority support',
-      'Custom integrations',
-      'Unlimited everything'
+      'All Veteran features',
+      'Dedicated admin dashboards',
+      'Audit trail + fallback analytics',
+      'Bulk org user onboarding',
+      'Custom SLAs and support'
     ],
     ctaText: 'Contact Sales',
+  },
+
+  {
+    id: 'creator',
+    name: 'Creator Plan',
+    description: 'Specialized for content creators and storytellers',
+    tagline: 'Streamlined Memory Storytelling',
+    pricePerMonth: 14.99,
+    pricePerYear: 149.90,
+    onboardingCondition: 'selected_creator = true',
+    features: {
+      fileIntelligence: true,
+      smartFolderRouting: true,
+      smartFolderCreation: true,
+      journaling: 'full',
+      memoryTimeline: true,
+      documentParsing: true,
+      voiceAssistant: false,
+      videoCaptioning: true,
+      audioSupport: true,
+      relationshipMapping: false,
+      faceRecognition: false,
+      storyGeneration: true,
+      peopleTracing: false,
+      memoryFilters: true,
+      workflowManagement: false,
+      adminOverride: false,
+      agentFeedback: false,
+      adminDashboard: false,
+      auditTrail: false,
+      fallbackAnalytics: false,
+      apiExport: false,
+      collaborationFolders: false,
+      bulkUserOnboarding: false,
+      premiumSupport: false,
+      customSLAs: false,
+      dedicatedSupport: false,
+    },
+    limits: {
+      maxStorageGB: 50,
+      maxMonthlyUploads: Infinity,
+      maxUsers: 1,
+      maxWorkflows: 10,
+      apiRateLimit: 50,
+      maxVoiceMinutes: 100,
+      maxVideoMinutes: 200,
+    },
+    aiConfig: {
+      primaryModel: 'gpt-4',
+      fallbackModel: 'gemini-1.5-pro',
+      maxApiCalls: 8000,
+      supportsChaining: false,
+    },
+    highlights: [
+      'Unlimited journaling + tagging',
+      'Gemini/GPT-4 content agent access',
+      'Video + audio upload support',
+      'Auto-captioning and summarization',
+      'Streamlined memory storytelling tools'
+    ],
+    ctaText: 'Create Stories',
   }
 ];
 
@@ -288,7 +407,7 @@ export const PRICING_EXPERIMENTS: PricingExperiment[] = [
   {
     id: 'default',
     name: 'Default Pricing',
-    description: 'Standard pricing tiers',
+    description: 'Standard pricing tiers with Creator plan',
     active: true,
     tiers: DEFAULT_PRICING,
   },
@@ -300,20 +419,20 @@ export const PRICING_EXPERIMENTS: PricingExperiment[] = [
     active: false,
     tiers: DEFAULT_PRICING.map(tier => ({
       ...tier,
-      pricePerMonth: Math.floor(tier.pricePerMonth * 0.8), // 20% discount
-      pricePerYear: Math.floor(tier.pricePerYear * 0.8),
+      pricePerMonth: tier.id === 'creator' ? tier.pricePerMonth : Math.floor(tier.pricePerMonth * 0.8),
+      pricePerYear: tier.id === 'creator' ? tier.pricePerYear : Math.floor(tier.pricePerYear * 0.8),
     })),
   },
   
   {
-    id: 'power-user',
-    name: 'Power User Pricing', 
+    id: 'enterprise-focus',
+    name: 'Enterprise Focus Pricing', 
     description: 'Higher prices with premium positioning',
     active: false,
     tiers: DEFAULT_PRICING.map(tier => ({
       ...tier,
-      pricePerMonth: Math.floor(tier.pricePerMonth * 1.3), // 30% increase
-      pricePerYear: Math.floor(tier.pricePerYear * 1.3),
+      pricePerMonth: tier.id === 'creator' ? tier.pricePerMonth : Math.floor(tier.pricePerMonth * 1.2),
+      pricePerYear: tier.id === 'creator' ? tier.pricePerYear : Math.floor(tier.pricePerYear * 1.2),
     })),
   }
 ];
@@ -343,6 +462,24 @@ export function getPricingTier(planName: PlanName): PricingTier {
  */
 export function hasFeature(planName: PlanName, feature: keyof PlanFeatures): boolean {
   const tier = getPricingTier(planName);
+  const featureValue = tier.features[feature];
+  
+  // Handle different feature types
+  if (typeof featureValue === 'boolean') {
+    return featureValue;
+  } else if (typeof featureValue === 'string') {
+    // For features like journaling that have multiple states
+    return featureValue !== 'none';
+  }
+  
+  return false;
+}
+
+/**
+ * Get specific feature level (for features with multiple states)
+ */
+export function getFeatureLevel(planName: PlanName, feature: keyof PlanFeatures): any {
+  const tier = getPricingTier(planName);
   return tier.features[feature];
 }
 
@@ -353,3 +490,70 @@ export function getAIConfig(planName: PlanName): AIModelConfig {
   const tier = getPricingTier(planName);
   return tier.aiConfig;
 }
+
+/**
+ * Check if plan supports agent chaining
+ */
+export function supportsAgentChaining(planName: PlanName): boolean {
+  const aiConfig = getAIConfig(planName);
+  return aiConfig.supportsChaining;
+}
+
+// Legacy support for the old structure
+export const PricingConfig = {
+  standard: {
+    name: 'Standard',
+    price: 9,
+    features: [
+      'File upload + Smart Folder routing',
+      'Auto-tagging + scoring',
+      'GROQ-powered AI agents',
+      'Limited journaling (read-only)' 
+    ]
+  },
+  pro: {
+    name: 'Pro',
+    price: 19,
+    features: [
+      'All Standard features',
+      'Full Journaling + Memory Timeline',
+      'Gemini 1.5 agents',
+      'Smart Folder creation + override',
+      'People tracing + memory filters'
+    ]
+  },
+  veteran: {
+    name: 'Veteran',
+    price: 49,
+    features: [
+      'All Pro features',
+      'Claude 3 agent chains',
+      'Voice assistant journaling',
+      'Admin override + agent feedback',
+      'API export + collaboration folders'
+    ]
+  },
+  enterprise: {
+    name: 'Enterprise',
+    price: 149,
+    features: [
+      'All Veteran features',
+      'Dedicated admin dashboards',
+      'Audit trail + fallback analytics',
+      'Bulk org user onboarding',
+      'Custom SLAs and support'
+    ]
+  },
+  creator: {
+    name: 'Creator Plan',
+    price: 14.99,
+    features: [
+      'Unlimited journaling + tagging',
+      'Gemini/GPT-4 content agent access',
+      'Video + audio upload support',
+      'Auto-captioning and summarization',
+      'Streamlined memory storytelling tools'
+    ],
+    onboardingCondition: 'selected_creator = true'
+  }
+};
