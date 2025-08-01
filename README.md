@@ -17,8 +17,9 @@ npm install
 # Start the orchestrator
 ./start.sh
 
-# Or run with specific plan
+# Or run with specific plan (including new Creator plan)
 ./start.sh veteran build-all
+./start.sh creator build-all
 ```
 
 ## 🏗️ Architecture Overview
