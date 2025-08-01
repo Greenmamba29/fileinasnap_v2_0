@@ -33,7 +33,7 @@ export function logAgentInvocation(record: AgentInvocationRecord) {
  * this function and should handle authorization at the API layer.
  */
 export function getAnalyticsSummary(planName: PlanName): AnalyticsSummary {
-  if (!isFeatureEnabled(planName, 'analytics')) {
+  if (!isFeatureEnabled(planName, 'fallbackAnalytics')) {
     throw new Error('Analytics is only available on the Enterprise plan.');
   }
   const total = invocationHistory.length;
