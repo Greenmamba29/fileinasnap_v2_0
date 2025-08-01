@@ -199,12 +199,18 @@ npm run test          # Run test suite
 npm run lint          # Code linting
 npm run format        # Code formatting
 
-# Agent-specific commands
+# BMAD Agent Commands (Original System)
 npm run agent:file         # File intelligence
 npm run agent:journal      # Journal processing  
 npm run agent:relationship # Relationship mapping
 npm run agent:story        # Story generation
 npm run agent:analytics    # Analytics dashboard
+
+# Container Flow Commands (New Architecture)
+npm run container:flows    # Test all container flows
+npm run container:file     # FileOrganizerContainer only
+npm run container:journal  # JournalAgentContainer only
+npm run container:admin    # AgentSupervisor only
 ```
 
 ### Environment Variables
