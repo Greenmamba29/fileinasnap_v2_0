@@ -10,11 +10,13 @@ export type PlanName = 'standard' | 'pro' | 'veteran' | 'enterprise' | 'creator'
 
 export interface AIModelConfig {
   /** Primary AI model for this tier */
-  primaryModel: 'gpt-4' | 'gpt-3.5-turbo' | 'gemini-pro' | 'claude-3-sonnet' | 'claude-3-opus';
+  primaryModel: 'groq-llama3' | 'gemini-1.5-pro' | 'gpt-4' | 'claude-3-sonnet' | 'claude-3-opus';
   /** Fallback model if primary fails */
-  fallbackModel?: 'gpt-3.5-turbo' | 'gemini-pro';
+  fallbackModel?: 'groq-llama3' | 'gemini-1.5-pro' | 'gpt-4';
   /** Maximum API calls per month */
   maxApiCalls: number;
+  /** Agent chaining capability */
+  supportsChaining: boolean;
 }
 
 export interface PlanFeatures {
