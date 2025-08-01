@@ -6,7 +6,7 @@
  * without touching core application logic.
  */
 
-export type PlanName = 'standard' | 'pro' | 'veteran' | 'enterprise';
+export type PlanName = 'standard' | 'pro' | 'veteran' | 'enterprise' | 'creator';
 
 export interface AIModelConfig {
   /** Primary AI model for this tier */
