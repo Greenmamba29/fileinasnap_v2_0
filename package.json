@@ -15,7 +15,11 @@
     "agent:journal": "tsx mobile_classification_app/bmadOrchestrator.ts build-journaling",
     "agent:relationship": "tsx mobile_classification_app/bmadOrchestrator.ts build-relationship",
     "agent:story": "tsx mobile_classification_app/bmadOrchestrator.ts build-stories",
-    "agent:analytics": "tsx mobile_classification_app/bmadOrchestrator.ts analytics"
+    "agent:analytics": "tsx mobile_classification_app/bmadOrchestrator.ts analytics",
+    "container:flows": "tsx mobile_classification_app/containerFlowOrchestrator.ts demo-all",
+    "container:file": "tsx mobile_classification_app/containerFlowOrchestrator.ts file-upload",
+    "container:journal": "tsx mobile_classification_app/containerFlowOrchestrator.ts journal-entry", 
+    "container:admin": "tsx mobile_classification_app/containerFlowOrchestrator.ts admin-override"
   },
   "keywords": [
     "ai",
