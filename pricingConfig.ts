@@ -23,27 +23,38 @@ export interface PlanFeatures {
   // Core Features
   fileIntelligence: boolean;
   smartFolderRouting: boolean;
+  smartFolderCreation: boolean;
   
   // Content Features  
-  journaling: boolean;
+  journaling: 'none' | 'readonly' | 'full';
   memoryTimeline: boolean;
   documentParsing: boolean;
+  voiceAssistant: boolean;
+  videoCaptioning: boolean;
+  audioSupport: boolean;
   
   // AI Features
   relationshipMapping: boolean;
   faceRecognition: boolean;
   storyGeneration: boolean;
+  peopleTracing: boolean;
+  memoryFilters: boolean;
   
   // Advanced Features
   workflowManagement: boolean;
-  overrideUI: boolean;
+  adminOverride: boolean;
+  agentFeedback: boolean;
   adminDashboard: boolean;
+  auditTrail: boolean;
   fallbackAnalytics: boolean;
   apiExport: boolean;
+  collaborationFolders: boolean;
+  bulkUserOnboarding: boolean;
   
   // Support Features
   premiumSupport: boolean;
-  customIntegrations: boolean;
+  customSLAs: boolean;
+  dedicatedSupport: boolean;
 }
 
 export interface PlanLimits {
