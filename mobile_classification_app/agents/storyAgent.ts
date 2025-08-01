@@ -32,7 +32,7 @@ export async function storyAgent(
   planName: PlanName,
   request: StoryRequest,
 ): Promise<StorySummary> {
-  if (!isFeatureEnabled(planName, 'storyModules')) {
+  if (!isFeatureEnabled(planName, 'storyGeneration')) {
     throw new Error('Story modules are not enabled for this plan.');
   }
 
