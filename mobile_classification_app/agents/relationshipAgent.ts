@@ -23,7 +23,7 @@ export async function relationshipAgent(
   planName: PlanName,
   imageBuffer: Buffer,
 ): Promise<RelationshipResult> {
-  if (!isFeatureEnabled(planName, 'relationship')) {
+  if (!isFeatureEnabled(planName, 'relationshipMapping')) {
     throw new Error('Relationship and face recognition feature is not enabled for this plan.');
   }
 
