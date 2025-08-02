@@ -298,7 +298,9 @@ class FileInASnapAuth0Tester:
                 
                 # All should fail at authentication level (403/422), not validation
                 if response.status_code in [403, 422]:
-                    if "authorization" in response.text.lower() or "forbidden" in response.text.lower():
+                    if ("authorization" in response.text.lower() or 
+                        "forbidden" in response.text.lower() or 
+                        "not authenticated" in response.text.lower()):
                         self.log_test(f"File Upload Auth Check - {test_case['name']}", True, 
                                     f"Correctly blocked at authentication level: {response.status_code}")
                     else:
