@@ -302,7 +302,7 @@ const FileInASnapLanding = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   if (user) {
-                    alert('Welcome to your dashboard!');
+                    window.location.href = '/dashboard';
                   } else {
                     setAuthMode('signup');
                     setShowAuthModal(true);
