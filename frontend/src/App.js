@@ -430,6 +430,29 @@ const FileInASnapLanding = () => {
         </div>
       </section>
 
+      {/* About Section */}
+      <section id="about" className="px-6 lg:px-12 py-20 bg-gray-50">
+        <motion.div
+          initial={{ y: 50, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center max-w-4xl mx-auto"
+        >
+          <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6">
+            About FileInASnap
+          </h2>
+          <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+            FileInASnap was born from the frustration of lost photos, scattered documents, and the endless search for that one important file. 
+            We believe your memories and documents should be organized automatically, securely stored, and easily accessible whenever you need them.
+          </p>
+          <p className="text-lg text-gray-600 leading-relaxed">
+            Using cutting-edge AI technology, we've created a platform that doesn't just store your files – it understands them, 
+            organizes them intelligently, and makes them discoverable in ways you never thought possible.
+          </p>
+        </motion.div>
+      </section>
+
       {/* CTA Section */}
       <section className="px-6 lg:px-12 py-20 bg-blue-600">
         <motion.div
