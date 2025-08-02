@@ -21,14 +21,14 @@ class FileInASnapAPITester:
         
         # Test data with realistic values
         self.test_user = {
-            "email": f"sarah.johnson+{uuid.uuid4().hex[:8]}@techcorp.com",
+            "email": f"sarah.johnson{uuid.uuid4().hex[:8]}@techcorp.com",
             "password": "SecurePass123!",
             "full_name": "Sarah Johnson",
             "organization": "TechCorp Solutions"
         }
         
         self.weak_password_user = {
-            "email": f"john.doe+{uuid.uuid4().hex[:8]}@example.com", 
+            "email": f"john.doe{uuid.uuid4().hex[:8]}@example.com", 
             "password": "weak",
             "full_name": "John Doe",
             "organization": "Example Inc"
