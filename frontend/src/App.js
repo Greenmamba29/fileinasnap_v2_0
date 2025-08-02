@@ -101,42 +101,62 @@ const FileInASnapLanding = () => {
         
         {/* Header Navigation Interactive Areas */}
         <div className="absolute top-0 left-0 right-0 z-10 p-6 lg:px-12">
-          {/* Logo area - clickable */}
+          {/* Logo area */}
           <div className="absolute left-6 lg:left-12 top-6 flex items-center space-x-2 cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
-            <div className="w-10 h-10 opacity-0"></div> {/* Transparent overlay for logo */}
-            <span className="text-2xl opacity-0">FileInASnap</span> {/* Transparent text for spacing */}
+            <div className="w-10 h-10 opacity-0"></div>
+            <span className="text-2xl opacity-0">FileInASnap</span>
           </div>
           
-          {/* Navigation links */}
+          {/* Navigation links - FIXED */}
           <nav className="absolute top-6 left-1/2 transform -translate-x-1/2 hidden lg:flex items-center space-x-8">
-            <a href="#features" className="text-transparent hover:text-gray-700 font-medium px-4 py-2 transition-colors">Features</a>
-            <a href="#pricing" className="text-transparent hover:text-gray-700 font-medium px-4 py-2 transition-colors">Pricing</a>
-            <a href="#about" className="text-transparent hover:text-gray-700 font-medium px-4 py-2 transition-colors">About</a>
+            <a 
+              href="#features" 
+              className="text-transparent hover:text-gray-700 font-medium px-4 py-2 transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Features
+            </a>
+            <a 
+              href="#pricing" 
+              className="text-transparent hover:text-gray-700 font-medium px-4 py-2 transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Pricing
+            </a>
+            <a 
+              href="#about" 
+              className="text-transparent hover:text-gray-700 font-medium px-4 py-2 transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              About
+            </a>
           </nav>
           
-          {/* Sign Up button area */}
+          {/* Sign Up button area - FIXED */}
           <div className="absolute right-6 lg:right-12 top-6">
-            {user ? (
+            {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-800 bg-white bg-opacity-80 px-3 py-1 rounded">Welcome, {user.email}</span>
-                <button
-                  onClick={handleSignOut}
-                  className="px-4 py-2 text-gray-800 bg-white bg-opacity-80 rounded hover:bg-opacity-100 transition-all"
-                >
-                  Sign Out
-                </button>
+                <span className="text-sm text-gray-800 bg-white bg-opacity-80 px-3 py-1 rounded">
+                  Welcome, {user?.name || user?.email}
+                </span>
+                <LogoutButton className="px-4 py-2 text-gray-800 bg-white bg-opacity-80 rounded hover:bg-opacity-100 transition-all" />
               </div>
             ) : (
-              <button
-                onClick={() => {
-                  setAuthMode('signup');
-                  setShowAuthModal(true);
-                }}
-                className="bg-transparent border-2 border-transparent hover:bg-yellow-400 hover:bg-opacity-20 text-transparent px-6 py-3 rounded-lg font-semibold transition-all"
-                style={{ width: '100px', height: '48px' }} // Match the button size in image
+              <LoginButton 
+                className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold transition-all shadow-lg"
+                style={{ width: '100px', height: '48px' }}
               >
-                &nbsp;
-              </button>
+                Sign Up
+              </LoginButton>
             )}
           </div>
         </div>
