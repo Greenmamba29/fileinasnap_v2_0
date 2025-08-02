@@ -37,134 +37,56 @@ const FileInASnapLanding = () => {
     }
   };
 
-  const handleAuth = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      if (authMode === 'signup') {
-        const response = await axios.post(`${API}/auth/register`, {
-          email: authForm.email,
-          password: authForm.password,
-          full_name: authForm.fullName,
-          organization: authForm.organization || null
-        });
-        
-        alert('Registration successful! Please check your email for verification.');
-        setAuthMode('signin');
-      } else {
-        const response = await axios.post(`${API}/auth/login`, {
-          email: authForm.email,
-          password: authForm.password
-        });
-        
-        localStorage.setItem('access_token', response.data.access_token);
-        
-        // Redirect to dashboard after successful login
-        window.location.href = '/dashboard';
-      }
-    } catch (error) {
-      alert(error.response?.data?.detail || 'Authentication failed');
-    }
-    
-    setLoading(false);
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    localStorage.removeItem('access_token');
-  };
-
-  const AuthModal = () => (
+  const VideoModal = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-white rounded-xl p-8 w-full max-w-md"
+        className="bg-white rounded-xl p-8 w-full max-w-4xl relative"
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">
-            {authMode === 'signin' ? 'Sign In' : 'Sign Up'}
-          </h2>
-          <button 
-            onClick={() => setShowAuthModal(false)}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            ✕
-          </button>
-        </div>
+        <button 
+          onClick={() => setShowVideoModal(false)}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
+        >
+          ✕
+        </button>
         
-        <form onSubmit={handleAuth} className="space-y-4">
-          <div>
-            <input
-              type="email"
-              placeholder="Email"
-              required
-              value={authForm.email}
-              onChange={(e) => setAuthForm({...authForm, email: e.target.value})}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">FileInASnap Demo</h2>
+          <div className="bg-gray-100 rounded-lg p-8 mb-6">
+            <div className="text-6xl mb-4">🎬</div>
+            <p className="text-lg text-gray-600">Demo video coming soon!</p>
+            <p className="text-sm text-gray-500 mt-2">
+              See how FileInASnap automatically organizes your files with AI-powered intelligence.
+            </p>
           </div>
           
-          <div>
-            <input
-              type="password"
-              placeholder="Password"
-              required
-              value={authForm.password}
-              onChange={(e) => setAuthForm({...authForm, password: e.target.value})}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+          <div className="flex justify-center space-x-4">
+            <LoginButton className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold">
+              Start Free Trial
+            </LoginButton>
+            <button
+              onClick={() => setShowVideoModal(false)}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-semibold"
+            >
+              Close
+            </button>
           </div>
-          
-          {authMode === 'signup' && (
-            <>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Full Name"
-                  required
-                  value={authForm.fullName}
-                  onChange={(e) => setAuthForm({...authForm, fullName: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <input
-                  type="text"
-                  placeholder="Organization (optional)"
-                  value={authForm.organization}
-                  onChange={(e) => setAuthForm({...authForm, organization: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </>
-          )}
-          
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? 'Loading...' : (authMode === 'signin' ? 'Sign In' : 'Sign Up')}
-          </button>
-        </form>
-        
-        <div className="mt-4 text-center">
-          <button
-            onClick={() => setAuthMode(authMode === 'signin' ? 'signup' : 'signin')}
-            className="text-blue-600 hover:underline"
-          >
-            {authMode === 'signin' 
-              ? "Don't have an account? Sign up" 
-              : "Already have an account? Sign in"
-            }
-          </button>
         </div>
       </motion.div>
     </div>
   );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
