@@ -199,10 +199,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Supabase Integration Setup"
-    - "Landing Page API Integration"
-    - "Plan-Aware Architecture Implementation"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
