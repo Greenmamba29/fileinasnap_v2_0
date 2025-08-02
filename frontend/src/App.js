@@ -197,31 +197,31 @@ const FileInASnapLanding = () => {
           backgroundImage: `url('https://customer-assets.emergentagent.com/job_fileinsnap/artifacts/5ebv4t83_ChatGPT%20Image%20Jul%2016%2C%202025%2C%2003_47_10%20PM.png')`
         }}
       >
-        {/* Optional overlay for better text readability */}
-        <div className="absolute inset-0 bg-black bg-opacity-10"></div>
+        {/* Invisible interactive areas positioned over the image elements */}
         
-        {/* Header Navigation Overlay */}
-        <header className="absolute top-0 left-0 right-0 flex justify-between items-center p-6 lg:px-12 z-10">
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">📁</span>
-            </div>
-            <span className="text-2xl font-bold text-gray-900">FileInASnap</span>
+        {/* Header Navigation Interactive Areas */}
+        <div className="absolute top-0 left-0 right-0 z-10 p-6 lg:px-12">
+          {/* Logo area - clickable */}
+          <div className="absolute left-6 lg:left-12 top-6 flex items-center space-x-2 cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
+            <div className="w-10 h-10 opacity-0"></div> {/* Transparent overlay for logo */}
+            <span className="text-2xl opacity-0">FileInASnap</span> {/* Transparent text for spacing */}
           </div>
           
-          <nav className="hidden lg:flex items-center space-x-8">
-            <a href="#features" className="text-gray-700 hover:text-gray-900 font-medium">Features</a>
-            <a href="#pricing" className="text-gray-700 hover:text-gray-900 font-medium">Pricing</a>
-            <a href="#about" className="text-gray-700 hover:text-gray-900 font-medium">About</a>
+          {/* Navigation links */}
+          <nav className="absolute top-6 left-1/2 transform -translate-x-1/2 hidden lg:flex items-center space-x-8">
+            <a href="#features" className="text-transparent hover:text-gray-700 font-medium px-4 py-2 transition-colors">Features</a>
+            <a href="#pricing" className="text-transparent hover:text-gray-700 font-medium px-4 py-2 transition-colors">Pricing</a>
+            <a href="#about" className="text-transparent hover:text-gray-700 font-medium px-4 py-2 transition-colors">About</a>
           </nav>
           
-          <div className="flex items-center space-x-4">
+          {/* Sign Up button area */}
+          <div className="absolute right-6 lg:right-12 top-6">
             {user ? (
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">Welcome, {user.email}</span>
+                <span className="text-sm text-gray-800 bg-white bg-opacity-80 px-3 py-1 rounded">Welcome, {user.email}</span>
                 <button
                   onClick={handleSignOut}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-900"
+                  className="px-4 py-2 text-gray-800 bg-white bg-opacity-80 rounded hover:bg-opacity-100 transition-all"
                 >
                   Sign Out
                 </button>
@@ -232,31 +232,67 @@ const FileInASnapLanding = () => {
                   setAuthMode('signup');
                   setShowAuthModal(true);
                 }}
-                className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold transition-colors"
+                className="bg-transparent border-2 border-transparent hover:bg-yellow-400 hover:bg-opacity-20 text-transparent px-6 py-3 rounded-lg font-semibold transition-all"
+                style={{ width: '100px', height: '48px' }} // Match the button size in image
               >
-                Sign Up
+                &nbsp;
               </button>
             )}
           </div>
-        </header>
+        </div>
 
-        {/* Hero Content Overlay - Positioned to match the image */}
-        <div className="absolute top-1/2 left-12 transform -translate-y-1/2 z-10 max-w-lg">
+        {/* CTA Buttons Interactive Areas - Positioned over the image buttons */}
+        <div className="absolute bottom-1/3 left-12 z-10">
+          <div className="flex space-x-4">
+            {/* Start Free button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                if (user) {
+                  alert('Welcome to your dashboard!');
+                } else {
+                  setAuthMode('signup');
+                  setShowAuthModal(true);
+                }
+              }}
+              className="bg-transparent border-2 border-transparent hover:bg-blue-600 hover:bg-opacity-20 text-transparent px-8 py-4 rounded-lg font-semibold text-lg transition-all"
+              style={{ width: '160px', height: '60px' }} // Match button size in image
+            >
+              &nbsp;
+            </motion.button>
+            
+            {/* Watch Demo button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => alert('Watch Demo functionality coming soon!')}
+              className="bg-transparent border-2 border-transparent hover:bg-white hover:bg-opacity-20 text-transparent px-8 py-4 rounded-lg font-semibold text-lg transition-all"
+              style={{ width: '160px', height: '60px' }} // Match button size in image
+            >
+              &nbsp;
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Mobile responsive overlay for small screens */}
+        <div className="lg:hidden absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-center text-center p-6 z-10">
           <motion.div
-            initial={{ x: -50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8 }}
+            className="text-white max-w-md"
           >
-            <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-3xl font-bold mb-4 leading-tight">
               Organize your life's memories effortlessly
             </h1>
             
-            <p className="text-lg lg:text-xl text-gray-700 mb-8 leading-relaxed">
+            <p className="text-lg mb-6 leading-relaxed opacity-90">
               FileInASnap is designed to automatically organize, securely store, and easily share
               all your photos, videos, and documents.
             </p>
             
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+            <div className="flex flex-col space-y-3">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -268,7 +304,7 @@ const FileInASnapLanding = () => {
                     setShowAuthModal(true);
                   }
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg"
               >
                 Start Free
               </motion.button>
@@ -276,10 +312,25 @@ const FileInASnapLanding = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-white hover:bg-gray-50 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-200 transition-all shadow-lg"
+                onClick={() => alert('Watch Demo functionality coming soon!')}
+                className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-900 px-8 py-3 rounded-lg font-semibold transition-all shadow-lg"
               >
                 Watch Demo
               </motion.button>
+              
+              {!user && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setAuthMode('signup');
+                    setShowAuthModal(true);
+                  }}
+                  className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-8 py-3 rounded-lg font-semibold transition-all shadow-lg"
+                >
+                  Sign Up
+                </motion.button>
+              )}
             </div>
           </motion.div>
         </div>
