@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { motion } from "framer-motion";
-import { createClient } from '@supabase/supabase-js';
+import { useAuth0 } from '@auth0/auth0-react';
+import Auth0ProviderWithHistory from "./auth/Auth0ProviderWithHistory";
+import LoginButton from "./components/auth/LoginButton";
+import LogoutButton from "./components/auth/LogoutButton";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import axios from "axios";
 import "./App.css";
 
@@ -10,11 +14,6 @@ import DashboardPage from "./pages/DashboardPage";
 import JournalPage from "./pages/JournalPage";
 import MemoryTimelinePage from "./pages/MemoryTimelinePage";
 import NotFound from "./pages/NotFound";
-
-// Initialize Supabase client
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
