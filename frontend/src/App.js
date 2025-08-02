@@ -570,4 +570,17 @@ const FileInASnapLanding = () => {
   );
 };
 
-export default FileInASnapLanding;
+// Main App with routing
+const App = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<FileInASnapLanding />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/journal" element={<JournalPage />} />
+      <Route path="/timeline" element={<MemoryTimelinePage />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </BrowserRouter>
+);
+
+export default App;
