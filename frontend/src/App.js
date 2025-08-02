@@ -200,7 +200,7 @@ const FileInASnapLanding = () => {
           </div>
         </div>
 
-        {/* Mobile responsive overlay for small screens */}
+        {/* Mobile responsive overlay */}
         <div className="lg:hidden absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-center text-center p-6 z-10">
           <motion.div
             initial={{ y: 50, opacity: 0 }}
@@ -218,44 +218,29 @@ const FileInASnapLanding = () => {
             </p>
             
             <div className="flex flex-col space-y-3">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  if (user) {
-                    window.location.href = '/dashboard';
-                  } else {
-                    setAuthMode('signup');
-                    setShowAuthModal(true);
-                  }
-                }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg"
-              >
-                Start Free
-              </motion.button>
+              {isAuthenticated ? (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => window.location.href = '/dashboard'}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg"
+                >
+                  Go to Dashboard
+                </motion.button>
+              ) : (
+                <LoginButton className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg">
+                  Start Free
+                </LoginButton>
+              )}
               
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => alert('Watch Demo functionality coming soon!')}
+                onClick={() => setShowVideoModal(true)}
                 className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-900 px-8 py-3 rounded-lg font-semibold transition-all shadow-lg"
               >
                 Watch Demo
               </motion.button>
-              
-              {!user && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    setAuthMode('signup');
-                    setShowAuthModal(true);
-                  }}
-                  className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-8 py-3 rounded-lg font-semibold transition-all shadow-lg"
-                >
-                  Sign Up
-                </motion.button>
-              )}
             </div>
           </motion.div>
         </div>
