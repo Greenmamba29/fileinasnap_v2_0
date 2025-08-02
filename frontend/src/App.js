@@ -477,7 +477,7 @@ const FileInASnapLanding = () => {
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
                   }`}
                 >
-                  {user ? 'Upgrade' : 'Get Started'}
+                  {user ? 'Access Dashboard' : 'Get Started'}
                 </button>
               </div>
             </motion.div>
