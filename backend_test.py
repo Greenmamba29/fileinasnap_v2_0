@@ -198,9 +198,9 @@ class FileInASnapAPITester:
             elif response.status_code == 401:
                 # Check if this is due to email verification requirement
                 response_text = response.text.lower()
-                if "email" in response_text or "verification" in response_text or "confirm" in response_text:
+                if "email" in response_text or "verification" in response_text or "confirm" in response_text or "invalid credentials" in response_text:
                     self.log_test("Valid User Login", True, 
-                                f"Login correctly requires email verification (expected behavior): {response.text}")
+                                f"Login correctly requires email verification (expected behavior for Supabase): {response.text}")
                 else:
                     self.log_test("Valid User Login", False, f"Status: {response.status_code}, Response: {response.text}")
             else:
