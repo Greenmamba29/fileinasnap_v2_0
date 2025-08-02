@@ -161,37 +161,42 @@ const FileInASnapLanding = () => {
           </div>
         </div>
 
-        {/* CTA Buttons Interactive Areas - Positioned over the image buttons */}
+        {/* CTA Buttons Interactive Areas - FIXED */}
         <div className="absolute bottom-1/3 left-12 z-10">
           <div className="flex space-x-4">
-            {/* Start Free button */}
+            {/* Start Free button - FUNCTIONAL */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
-                if (user) {
+                if (isAuthenticated) {
                   window.location.href = '/dashboard';
                 } else {
-                  setAuthMode('signup');
-                  setShowAuthModal(true);
+                  // This will trigger Auth0 login
+                  document.querySelector('[data-auth="login"]')?.click();
                 }
               }}
-              className="bg-transparent border-2 border-transparent hover:bg-blue-600 hover:bg-opacity-20 text-transparent px-8 py-4 rounded-lg font-semibold text-lg transition-all"
-              style={{ width: '160px', height: '60px' }} // Match button size in image
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg"
+              style={{ width: '160px', height: '60px' }}
             >
-              &nbsp;
+              Start Free
             </motion.button>
             
-            {/* Watch Demo button */}
+            {/* Watch Demo button - FUNCTIONAL */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => alert('Watch Demo functionality coming soon!')}
-              className="bg-transparent border-2 border-transparent hover:bg-white hover:bg-opacity-20 text-transparent px-8 py-4 rounded-lg font-semibold text-lg transition-all"
-              style={{ width: '160px', height: '60px' }} // Match button size in image
+              onClick={() => setShowVideoModal(true)}
+              className="bg-white hover:bg-gray-100 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-200 transition-all shadow-lg"
+              style={{ width: '160px', height: '60px' }}
             >
-              &nbsp;
+              Watch Demo
             </motion.button>
+          </div>
+          
+          {/* Hidden login trigger for Start Free button */}
+          <div style={{ display: 'none' }}>
+            <LoginButton data-auth="login">Hidden Login</LoginButton>
           </div>
         </div>
 
