@@ -131,7 +131,7 @@ const FileInASnapLanding = () => {
             </a>
             <a 
               href="#about" 
-              className="text-transparent hover:text-gray-700 font-medium px-4 py-2 transition-colors"
+              className="text-gray-800 hover:text-blue-600 font-medium px-4 py-2 transition-colors"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
