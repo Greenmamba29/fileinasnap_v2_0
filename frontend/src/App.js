@@ -368,23 +368,29 @@ const FileInASnapLanding = () => {
                   ))}
                 </ul>
                 
-                <button
-                  onClick={() => {
-                    if (user) {
-                      window.location.href = '/dashboard';
-                    } else {
-                      setAuthMode('signup');
-                      setShowAuthModal(true);
-                    }
-                  }}
-                  className={`w-full py-3 rounded-lg font-semibold transition-colors ${
-                    key === 'pro'
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-                  }`}
-                >
-                  {user ? 'Access Dashboard' : 'Get Started'}
-                </button>
+                {/* FUNCTIONAL GET STARTED BUTTON */}
+                {isAuthenticated ? (
+                  <button
+                    onClick={() => window.location.href = '/dashboard'}
+                    className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+                      key === 'pro'
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                    }`}
+                  >
+                    Access Dashboard
+                  </button>
+                ) : (
+                  <LoginButton
+                    className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+                      key === 'pro'
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                    }`}
+                  >
+                    Get Started
+                  </LoginButton>
+                )}
               </div>
             </motion.div>
           ))}
