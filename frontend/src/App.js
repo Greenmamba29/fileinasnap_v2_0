@@ -111,7 +111,7 @@ const FileInASnapLanding = () => {
           <nav className="absolute top-6 left-1/2 transform -translate-x-1/2 hidden lg:flex items-center space-x-8">
             <a 
               href="#features" 
-              className="text-transparent hover:text-gray-700 font-medium px-4 py-2 transition-colors"
+              className="text-gray-800 hover:text-blue-600 font-medium px-4 py-2 transition-colors"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
