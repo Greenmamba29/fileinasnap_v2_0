@@ -482,16 +482,39 @@ const FileInASnapLanding = () => {
   );
 };
 
-// Main App with routing
+// Main App with Auth0 integration and routing
 const App = () => (
   <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<FileInASnapLanding />} />
-      <Route path="/dashboard" element={<DashboardPage />} />
-      <Route path="/journal" element={<JournalPage />} />
-      <Route path="/timeline" element={<MemoryTimelinePage />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <Auth0ProviderWithHistory>
+      <Routes>
+        <Route path="/" element={<FileInASnapLanding />} />
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/journal" 
+          element={
+            <ProtectedRoute>
+              <JournalPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/timeline" 
+          element={
+            <ProtectedRoute>
+              <MemoryTimelinePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Auth0ProviderWithHistory>
   </BrowserRouter>
 );
 
