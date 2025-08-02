@@ -103,8 +103,8 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Integration of provided React landing page (App.js) with existing FileInASnap BMAD container system,
-  migrating from MongoDB to Supabase database with plan-aware architecture and subscription tiers.
+  Complete Auth0 authentication migration from Supabase authentication, implement file upload system with Supabase Storage,
+  activate landing page navigation components, and compile sitemap for proper routing in FileInASnap application.
 
 backend:
   - task: "Supabase Integration Setup"
