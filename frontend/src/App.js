@@ -465,7 +465,7 @@ const FileInASnapLanding = () => {
                 <button
                   onClick={() => {
                     if (user) {
-                      alert(`Upgrading to ${plan.name} plan...`);
+                      window.location.href = '/dashboard';
                     } else {
                       setAuthMode('signup');
                       setShowAuthModal(true);
