@@ -18,39 +18,14 @@ import NotFound from "./pages/NotFound";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// Our working landing page component
+// Our enhanced landing page component with Auth0 integration
 const FileInASnapLanding = () => {
-  const [user, setUser] = useState(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState('signin');
-  const [authForm, setAuthForm] = useState({
-    email: '',
-    password: '',
-    fullName: '',
-    organization: ''
-  });
-  const [loading, setLoading] = useState(false);
+  const { user, isAuthenticated, isLoading } = useAuth0();
   const [plans, setPlans] = useState({});
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUser(session.user);
-      }
-    };
-    
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-      if (session) {
-        setShowAuthModal(false);
-      }
-    });
-
     fetchPlans();
-    return () => subscription.unsubscribe();
   }, []);
 
   const fetchPlans = async () => {
