@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { motion } from "framer-motion";
 import { createClient } from '@supabase/supabase-js';
 import axios from "axios";
 import "./App.css";
+
+// Import new components
+import DashboardPage from "./pages/DashboardPage";
+import JournalPage from "./pages/JournalPage";
+import MemoryTimelinePage from "./pages/MemoryTimelinePage";
+import NotFound from "./pages/NotFound";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
@@ -12,10 +19,11 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Our working landing page component
 const FileInASnapLanding = () => {
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState('signin'); // 'signin' or 'signup'
+  const [authMode, setAuthMode] = useState('signin');
   const [authForm, setAuthForm] = useState({
     email: '',
     password: '',
@@ -26,7 +34,6 @@ const FileInASnapLanding = () => {
   const [plans, setPlans] = useState({});
 
   useEffect(() => {
-    // Check for existing session
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -36,7 +43,6 @@ const FileInASnapLanding = () => {
     
     checkSession();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       if (session) {
@@ -44,9 +50,7 @@ const FileInASnapLanding = () => {
       }
     });
 
-    // Fetch plans
     fetchPlans();
-
     return () => subscription.unsubscribe();
   }, []);
 
@@ -80,10 +84,10 @@ const FileInASnapLanding = () => {
           password: authForm.password
         });
         
-        // Store token if needed
         localStorage.setItem('access_token', response.data.access_token);
         
-        // The auth state change will be handled by the listener
+        // Redirect to dashboard after successful login
+        window.location.href = '/dashboard';
       }
     } catch (error) {
       alert(error.response?.data?.detail || 'Authentication failed');
