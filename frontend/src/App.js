@@ -189,105 +189,100 @@ const FileInASnapLanding = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      {/* Header */}
-      <header className="flex justify-between items-center p-6 lg:px-12">
-        <div className="flex items-center space-x-2">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">📁</span>
-          </div>
-          <span className="text-2xl font-bold text-gray-900">FileInASnap</span>
-        </div>
+    <div className="min-h-screen">
+      {/* Hero Section with Full Background Image */}
+      <section 
+        className="min-h-screen bg-cover bg-center bg-no-repeat relative"
+        style={{
+          backgroundImage: `url('https://customer-assets.emergentagent.com/job_fileinsnap/artifacts/5ebv4t83_ChatGPT%20Image%20Jul%2016%2C%202025%2C%2003_47_10%20PM.png')`
+        }}
+      >
+        {/* Optional overlay for better text readability */}
+        <div className="absolute inset-0 bg-black bg-opacity-10"></div>
         
-        <nav className="hidden lg:flex items-center space-x-8">
-          <a href="#features" className="text-gray-600 hover:text-gray-900 font-medium">Features</a>
-          <a href="#pricing" className="text-gray-600 hover:text-gray-900 font-medium">Pricing</a>
-          <a href="#blog" className="text-gray-600 hover:text-gray-900 font-medium">Blog</a>
-        </nav>
-        
-        <div className="flex items-center space-x-4">
-          {user ? (
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user.email}</span>
-              <button
-                onClick={handleSignOut}
-                className="px-4 py-2 text-gray-600 hover:text-gray-900"
-              >
-                Sign Out
-              </button>
+        {/* Header Navigation Overlay */}
+        <header className="absolute top-0 left-0 right-0 flex justify-between items-center p-6 lg:px-12 z-10">
+          <div className="flex items-center space-x-2">
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">📁</span>
             </div>
-          ) : (
-            <button
-              onClick={() => {
-                setAuthMode('signup');
-                setShowAuthModal(true);
-              }}
-              className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Sign Up
-            </button>
-          )}
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="lg:flex lg:items-center lg:justify-between px-6 lg:px-12 py-12 lg:py-20">
-        <motion.div 
-          initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="lg:w-1/2 lg:pr-12"
-        >
-          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Organize your life's memories effortlessly
-          </h1>
+            <span className="text-2xl font-bold text-gray-900">FileInASnap</span>
+          </div>
           
-          <p className="text-lg lg:text-xl text-gray-600 mb-8 leading-relaxed">
-            FileInASnap is designed to automatically organize, securely store, and easily share
-            all your photos, videos, and documents.
-          </p>
+          <nav className="hidden lg:flex items-center space-x-8">
+            <a href="#features" className="text-gray-700 hover:text-gray-900 font-medium">Features</a>
+            <a href="#pricing" className="text-gray-700 hover:text-gray-900 font-medium">Pricing</a>
+            <a href="#about" className="text-gray-700 hover:text-gray-900 font-medium">About</a>
+          </nav>
           
-          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                if (user) {
-                  alert('Welcome to your dashboard!');
-                } else {
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-600">Welcome, {user.email}</span>
+                <button
+                  onClick={handleSignOut}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-900"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
                   setAuthMode('signup');
                   setShowAuthModal(true);
-                }
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg"
-            >
-              Start Free
-            </motion.button>
+                }}
+                className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Sign Up
+              </button>
+            )}
+          </div>
+        </header>
+
+        {/* Hero Content Overlay - Positioned to match the image */}
+        <div className="absolute top-1/2 left-12 transform -translate-y-1/2 z-10 max-w-lg">
+          <motion.div
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              Organize your life's memories effortlessly
+            </h1>
             
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white hover:bg-gray-50 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-200 transition-all"
-            >
-              Watch Demo
-            </motion.button>
-          </div>
-        </motion.div>
-        
-        <motion.div 
-          initial={{ x: 50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="lg:w-1/2 mt-12 lg:mt-0"
-        >
-          <div className="relative">
-            <img 
-              src="https://customer-assets.emergentagent.com/job_fileinsnap/artifacts/njj5i748_ChatGPT%20Image%20Jul%2016%2C%202025%2C%2003_47_10%20PM.png"
-              alt="FileInASnap App Interface"
-              className="w-full h-auto rounded-lg shadow-2xl"
-            />
-          </div>
-        </motion.div>
+            <p className="text-lg lg:text-xl text-gray-700 mb-8 leading-relaxed">
+              FileInASnap is designed to automatically organize, securely store, and easily share
+              all your photos, videos, and documents.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  if (user) {
+                    alert('Welcome to your dashboard!');
+                  } else {
+                    setAuthMode('signup');
+                    setShowAuthModal(true);
+                  }
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg"
+              >
+                Start Free
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white hover:bg-gray-50 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-200 transition-all shadow-lg"
+              >
+                Watch Demo
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
       </section>
 
       {/* Features Section */}
