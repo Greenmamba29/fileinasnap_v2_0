@@ -436,21 +436,21 @@ const FileInASnapLanding = () => {
             Join thousands of users who have already transformed how they manage their files.
           </p>
           
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              if (user) {
-                window.location.href = '/dashboard';
-              } else {
-                setAuthMode('signup');
-                setShowAuthModal(true);
-              }
-            }}
-            className="bg-white hover:bg-gray-100 text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg"
-          >
-            Get Started Free
-          </motion.button>
+          {/* FUNCTIONAL CTA BUTTON */}
+          {isAuthenticated ? (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => window.location.href = '/dashboard'}
+              className="bg-white hover:bg-gray-100 text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg"
+            >
+              Go to Dashboard
+            </motion.button>
+          ) : (
+            <LoginButton className="bg-white hover:bg-gray-100 text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg">
+              Get Started Free
+            </LoginButton>
+          )}
         </motion.div>
       </section>
 
