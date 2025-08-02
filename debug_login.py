@@ -8,7 +8,7 @@ import json
 import uuid
 
 def debug_supabase_auth():
-    base_url = "https://d202cd2b-9a58-433d-8a7e-1707fca23ae6.preview.emergentagent.com"
+    base_url = "https://39a73e33-1a13-492d-833c-57077f63e2b6.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Create a unique test user

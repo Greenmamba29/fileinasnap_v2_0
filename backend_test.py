@@ -431,7 +431,7 @@ def main():
     """Main test execution"""
     # Get backend URL from environment or use default
     import os
-    backend_url = "https://d202cd2b-9a58-433d-8a7e-1707fca23ae6.preview.emergentagent.com"
+    backend_url = "https://39a73e33-1a13-492d-833c-57077f63e2b6.preview.emergentagent.com"
     
     print(f"🎯 FileInASnap Backend API Testing Suite")
     print(f"🌐 Target URL: {backend_url}")
