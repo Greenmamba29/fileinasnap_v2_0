@@ -13,7 +13,7 @@ def debug_supabase_auth():
     
     # Create a unique test user
     test_user = {
-        "email": f"debuguser{uuid.uuid4().hex[:8]}@example.com",
+        "email": f"test{uuid.uuid4().hex[:8]}@gmail.com",
         "password": "DebugPass123!",
         "full_name": "Debug User",
         "organization": "Debug Corp"
