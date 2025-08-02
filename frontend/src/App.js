@@ -476,8 +476,8 @@ const FileInASnapLanding = () => {
         </div>
       </footer>
 
-      {/* Auth Modal */}
-      {showAuthModal && <AuthModal />}
+      {/* Video Demo Modal */}
+      {showVideoModal && <VideoModal />}
     </div>
   );
 };
