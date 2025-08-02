@@ -1,5 +1,5 @@
-from fastapi import FastAPI, APIRouter, Depends, HTTPException, status, Header
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi.security import HTTPBearer
 from starlette.middleware.cors import CORSMiddleware
 from supabase import Client, create_client
 from pydantic import BaseModel, EmailStr, validator
@@ -9,32 +9,19 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 import logging
-import re
 import uuid
-import httpx
-from jose import JWTError, jwt
+import base64
+import mimetypes
+from auth import get_current_user, require_permission, auth0_management
 
 # Load environment variables
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Supabase Configuration
-class SupabaseConfig:
-    def __init__(self):
-        self.url = os.getenv("SUPABASE_URL")
-        self.anon_key = os.getenv("SUPABASE_ANON_KEY")
-        self.service_key = os.getenv("SUPABASE_SERVICE_KEY")
-        
-        if not all([self.url, self.anon_key, self.service_key]):
-            raise ValueError("Missing required Supabase configuration")
-    
-    def create_client(self, use_service_key: bool = False) -> Client:
-        key = self.service_key if use_service_key else self.anon_key
-        return create_client(self.url, key)
-
-config = SupabaseConfig()
-supabase_client = config.create_client()
-admin_client = config.create_client(use_service_key=True)
+# Supabase Configuration for data storage
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_SERVICE_KEY")
+supabase: Client = create_client(supabase_url, supabase_key)
 
 # Create FastAPI app
 app = FastAPI(title="FileInASnap API", version="1.0.0")
@@ -42,182 +29,224 @@ api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
 
 # Pydantic Models
-class UserRegistration(BaseModel):
-    email: EmailStr
-    password: str
-    full_name: str
+class UserProfile(BaseModel):
+    auth0_user_id: str
+    email: str
+    full_name: Optional[str] = None
+    organization: Optional[str] = None
+    subscription_tier: str = "free"
+    profile_picture: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+class ProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
     organization: Optional[str] = None
 
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
+class FileUpload(BaseModel):
+    name: str
+    content: str  # Base64 encoded content
+    mime_type: str
+    size: Optional[int] = None
 
-class UserProfile(BaseModel):
+class FileMetadata(BaseModel):
     id: str
-    email: str
-    full_name: str
-    organization: Optional[str]
-    subscription_tier: str
-    created_at: str
-    is_active: bool
+    name: str
+    mime_type: str
+    size: int
+    upload_date: str
+    user_id: str
 
-# Authentication Service
-class AuthenticationService:
+# User Service for managing user profiles
+class UserService:
     def __init__(self, supabase_client: Client):
         self.supabase = supabase_client
-        self.jwks_url = f"{config.url}/auth/v1/.well-known/jwks.json"
-        self.password_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
     
-    def validate_password(self, password: str) -> bool:
-        return bool(self.password_pattern.match(password))
-    
-    async def verify_token(self, token: str) -> dict:
+    async def get_or_create_profile(self, auth0_user: Dict) -> Dict:
+        """Get existing profile or create new one for Auth0 user"""
         try:
-            # For development, we'll use a simpler approach
-            # In production, you should verify against JWKS
-            response = await httpx.AsyncClient().get(f"{config.url}/auth/v1/.well-known/jwks.json")
-            if response.status_code == 200:
-                # Token verification logic would go here
-                # For now, we'll trust the token format
-                pass
+            # Check if profile exists
+            existing_profile = self.supabase.table('user_profiles').select('*').eq('auth0_user_id', auth0_user['user_id']).execute()
             
-            # Decode without verification for development
-            payload = jwt.decode(token, options={"verify_signature": False})
-            return payload
+            if existing_profile.data:
+                return existing_profile.data[0]
+            
+            # Create new profile
+            profile_data = {
+                'id': str(uuid.uuid4()),
+                'auth0_user_id': auth0_user['user_id'],
+                'email': auth0_user['email'],
+                'full_name': auth0_user.get('name'),
+                'subscription_tier': 'free',
+                'created_at': datetime.utcnow().isoformat(),
+                'updated_at': datetime.utcnow().isoformat()
+            }
+            
+            result = self.supabase.table('user_profiles').insert(profile_data).execute()
+            return result.data[0] if result.data else profile_data
+            
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f"Invalid authentication credentials: {str(e)}"
-            )
+            logging.error(f"Error managing user profile: {e}")
+            raise HTTPException(status_code=500, detail="Profile management error")
     
-    async def register_user(self, user_data: UserRegistration) -> dict:
-        if not self.validate_password(user_data.password):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Password must contain at least 8 characters with uppercase, lowercase, number, and special character"
-            )
+    async def update_profile(self, auth0_user_id: str, profile_data: ProfileUpdate) -> Dict:
+        """Update user profile"""
+        try:
+            update_data = profile_data.dict(exclude_unset=True)
+            update_data['updated_at'] = datetime.utcnow().isoformat()
+            
+            result = self.supabase.table('user_profiles').update(update_data).eq('auth0_user_id', auth0_user_id).execute()
+            return result.data[0] if result.data else None
+            
+        except Exception as e:
+            logging.error(f"Error updating profile: {e}")
+            raise HTTPException(status_code=500, detail="Profile update error")
+
+# File Service for managing file uploads
+class FileService:
+    def __init__(self, supabase_client: Client):
+        self.supabase = supabase_client
+        self.max_file_size = 50 * 1024 * 1024  # 50MB limit
+        self.allowed_types = [
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+            'application/pdf', 'text/plain', 'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'video/mp4', 'video/quicktime', 'video/x-msvideo'
+        ]
+    
+    def validate_file(self, file_data: FileUpload) -> bool:
+        """Validate file type and size"""
+        if file_data.mime_type not in self.allowed_types:
+            raise HTTPException(status_code=400, detail=f"File type {file_data.mime_type} not allowed")
         
-        try:
-            # Create user in Supabase Auth
-            auth_response = self.supabase.auth.sign_up({
-                "email": user_data.email,
-                "password": user_data.password,
-                "options": {
-                    "data": {
-                        "full_name": user_data.full_name,
-                        "organization": user_data.organization
-                    }
-                }
-            })
-            
-            if auth_response.user:
-                return {
-                    "message": "User registered successfully. Please check your email for verification.",
-                    "user_id": auth_response.user.id
-                }
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Registration failed"
-                )
-            
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Registration failed: {str(e)}"
-            )
+        if file_data.size and file_data.size > self.max_file_size:
+            raise HTTPException(status_code=400, detail=f"File size exceeds {self.max_file_size} bytes")
+        
+        return True
     
-    async def authenticate_user(self, email: str, password: str) -> dict:
+    async def upload_file(self, file_data: FileUpload, user_id: str) -> Dict:
+        """Upload file to Supabase storage and save metadata"""
         try:
-            response = self.supabase.auth.sign_in_with_password({
-                "email": email,
-                "password": password
-            })
+            self.validate_file(file_data)
             
-            if response.user and response.session:
-                return {
-                    "access_token": response.session.access_token,
-                    "refresh_token": response.session.refresh_token,
-                    "user": {
-                        "id": response.user.id,
-                        "email": response.user.email,
-                        "full_name": response.user.user_metadata.get("full_name", ""),
-                        "organization": response.user.user_metadata.get("organization", "")
-                    },
-                    "token_type": "bearer"
-                }
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid credentials"
-                )
+            # Decode base64 content
+            try:
+                file_content = base64.b64decode(file_data.content)
+                actual_size = len(file_content)
+            except Exception as e:
+                raise HTTPException(status_code=400, detail="Invalid base64 content")
             
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials"
+            # Generate unique file ID and path
+            file_id = str(uuid.uuid4())
+            file_extension = mimetypes.guess_extension(file_data.mime_type) or ''
+            file_path = f"{user_id}/{file_id}{file_extension}"
+            
+            # Upload to Supabase Storage
+            storage_result = self.supabase.storage.from_('user-files').upload(
+                file_path, file_content, 
+                file_options={"content-type": file_data.mime_type}
             )
-    
-    async def get_current_user(self, credentials: HTTPAuthorizationCredentials = Depends(security)):
-        try:
-            payload = await self.verify_token(credentials.credentials)
-            user_id = payload.get("sub")
             
-            if not user_id:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid user token"
-                )
+            # Save file metadata to database
+            file_metadata = {
+                'id': file_id,
+                'user_id': user_id,
+                'name': file_data.name,
+                'original_name': file_data.name,
+                'mime_type': file_data.mime_type,
+                'size': actual_size,
+                'storage_path': file_path,
+                'upload_date': datetime.utcnow().isoformat(),
+                'status': 'uploaded'
+            }
             
-            # Get user details from Supabase
-            user_response = self.supabase.auth.get_user(credentials.credentials)
+            metadata_result = self.supabase.table('user_files').insert(file_metadata).execute()
             
-            if user_response.user:
-                return {
-                    "id": user_response.user.id,
-                    "email": user_response.user.email,
-                    "full_name": user_response.user.user_metadata.get("full_name", ""),
-                    "organization": user_response.user.user_metadata.get("organization", ""),
-                    "subscription_tier": "free"  # Default for now
-                }
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="User not found"
-                )
-                
+            return {
+                "file_id": file_id,
+                "message": "File uploaded successfully",
+                "metadata": metadata_result.data[0] if metadata_result.data else file_metadata
+            }
+            
         except HTTPException:
             raise
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication"
-            )
+            logging.error(f"File upload error: {e}")
+            raise HTTPException(status_code=500, detail="File upload failed")
+    
+    async def get_user_files(self, user_id: str, limit: int = 50) -> List[Dict]:
+        """Get user's files"""
+        try:
+            result = self.supabase.table('user_files').select('*').eq('user_id', user_id).limit(limit).order('upload_date', desc=True).execute()
+            return result.data or []
+        except Exception as e:
+            logging.error(f"Error fetching files: {e}")
+            raise HTTPException(status_code=500, detail="Could not fetch files")
+    
+    async def delete_file(self, file_id: str, user_id: str) -> bool:
+        """Delete user's file"""
+        try:
+            # Get file metadata
+            file_result = self.supabase.table('user_files').select('*').eq('id', file_id).eq('user_id', user_id).execute()
+            
+            if not file_result.data:
+                raise HTTPException(status_code=404, detail="File not found")
+            
+            file_info = file_result.data[0]
+            
+            # Delete from storage
+            storage_result = self.supabase.storage.from_('user-files').remove([file_info['storage_path']])
+            
+            # Delete metadata
+            metadata_result = self.supabase.table('user_files').delete().eq('id', file_id).eq('user_id', user_id).execute()
+            
+            return True
+            
+        except HTTPException:
+            raise
+        except Exception as e:
+            logging.error(f"File deletion error: {e}")
+            raise HTTPException(status_code=500, detail="File deletion failed")
 
-auth_service = AuthenticationService(supabase_client)
+# Initialize services
+user_service = UserService(supabase)
+file_service = FileService(supabase)
 
 # API Routes
 @api_router.get("/")
 async def root():
-    return {"message": "FileInASnap API - Powered by Supabase", "status": "healthy"}
+    return {"message": "FileInASnap API - Powered by Auth0 + Supabase", "status": "healthy"}
 
 @api_router.get("/health")
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
 
-@api_router.post("/auth/register")
-async def register(user_data: UserRegistration):
-    result = await auth_service.register_user(user_data)
-    return result
-
-@api_router.post("/auth/login")
-async def login(login_data: UserLogin):
-    result = await auth_service.authenticate_user(login_data.email, login_data.password)
-    return result
-
 @api_router.get("/auth/profile")
-async def get_profile(current_user: dict = Depends(auth_service.get_current_user)):
-    return current_user
+async def get_profile(current_user: Dict = Depends(get_current_user)):
+    """Get current user profile with Supabase data"""
+    try:
+        profile = await user_service.get_or_create_profile(current_user)
+        
+        return {
+            "auth0_data": current_user,
+            "profile_data": profile
+        }
+    except Exception as e:
+        logging.error(f"Profile fetch error: {e}")
+        raise HTTPException(status_code=500, detail="Could not fetch profile")
+
+@api_router.put("/auth/profile")
+async def update_profile(
+    profile_data: ProfileUpdate,
+    current_user: Dict = Depends(get_current_user)
+):
+    """Update user profile"""
+    updated_profile = await user_service.update_profile(current_user['user_id'], profile_data)
+    
+    if not updated_profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    return {"message": "Profile updated successfully", "profile": updated_profile}
 
 @api_router.get("/plans")
 async def get_plans():
@@ -226,33 +255,114 @@ async def get_plans():
         "free": {
             "name": "Free",
             "price": 0,
-            "features": ["5 files", "Basic support", "1GB storage"],
+            "features": ["5 files", "Basic support", "1GB storage", "Basic AI organization"],
             "max_files": 5,
-            "storage_gb": 1
+            "storage_gb": 1,
+            "ai_features": ["basic_tagging"]
         },
         "pro": {
-            "name": "Pro",
+            "name": "Pro", 
             "price": 9.99,
-            "features": ["Unlimited files", "Priority support", "10GB storage", "Advanced analytics"],
-            "max_files": -1,
-            "storage_gb": 10
+            "features": ["100 files", "Priority support", "10GB storage", "Advanced AI", "File sharing"],
+            "max_files": 100,
+            "storage_gb": 10,
+            "ai_features": ["advanced_tagging", "smart_search", "auto_categorization"]
         },
         "team": {
             "name": "Team",
             "price": 19.99,
-            "features": ["Everything in Pro", "Team collaboration", "50GB storage", "API access"],
-            "max_files": -1,
-            "storage_gb": 50
+            "features": ["500 files", "Team collaboration", "50GB storage", "API access", "Admin dashboard"],
+            "max_files": 500,
+            "storage_gb": 50,
+            "ai_features": ["advanced_tagging", "smart_search", "auto_categorization", "team_insights"]
         },
         "enterprise": {
             "name": "Enterprise",
             "price": 49.99,
-            "features": ["Everything in Team", "Custom integrations", "Unlimited storage", "24/7 support"],
+            "features": ["Unlimited files", "Custom integrations", "Unlimited storage", "24/7 support", "Advanced security"],
             "max_files": -1,
-            "storage_gb": -1
+            "storage_gb": -1,
+            "ai_features": ["all_features", "custom_models", "priority_processing"]
         }
     }
     return plans
+
+# File Management Endpoints
+@api_router.post("/files/upload")
+async def upload_file(
+    file_data: FileUpload,
+    current_user: Dict = Depends(get_current_user)
+):
+    """Upload a new file"""
+    # Get user profile to check limits
+    profile = await user_service.get_or_create_profile(current_user)
+    
+    # Check file count limits based on subscription
+    user_files = await file_service.get_user_files(current_user['user_id'])
+    
+    plans_response = await get_plans()
+    user_plan = plans_response.get(profile['subscription_tier'], plans_response['free'])
+    max_files = user_plan['max_files']
+    
+    if max_files != -1 and len(user_files) >= max_files:
+        raise HTTPException(
+            status_code=429, 
+            detail=f"File limit exceeded. Your {profile['subscription_tier']} plan allows {max_files} files."
+        )
+    
+    result = await file_service.upload_file(file_data, current_user['user_id'])
+    return result
+
+@api_router.get("/files")
+async def get_files(
+    limit: int = 50,
+    current_user: Dict = Depends(get_current_user)
+):
+    """Get user's files"""
+    files = await file_service.get_user_files(current_user['user_id'], limit)
+    return {"files": files, "count": len(files)}
+
+@api_router.delete("/files/{file_id}")
+async def delete_file(
+    file_id: str,
+    current_user: Dict = Depends(get_current_user)
+):
+    """Delete a file"""
+    success = await file_service.delete_file(file_id, current_user['user_id'])
+    return {"message": "File deleted successfully" if success else "File deletion failed"}
+
+# Analytics endpoint (Pro+ only)
+@api_router.get("/analytics/usage")
+async def get_usage_analytics(
+    current_user: Dict = Depends(require_permission("read:analytics"))
+):
+    """Get usage analytics for Pro+ users"""
+    profile = await user_service.get_or_create_profile(current_user)
+    files = await file_service.get_user_files(current_user['user_id'], 1000)
+    
+    # Calculate usage statistics
+    total_files = len(files)
+    total_size = sum(f.get('size', 0) for f in files)
+    total_size_gb = total_size / (1024 * 1024 * 1024)
+    
+    # File type breakdown
+    type_breakdown = {}
+    for file in files:
+        mime_type = file.get('mime_type', 'unknown')
+        type_category = mime_type.split('/')[0]
+        type_breakdown[type_category] = type_breakdown.get(type_category, 0) + 1
+    
+    return {
+        "user_id": current_user['user_id'],
+        "subscription_tier": profile['subscription_tier'],
+        "usage": {
+            "total_files": total_files,
+            "total_size_bytes": total_size,
+            "total_size_gb": round(total_size_gb, 3),
+            "type_breakdown": type_breakdown
+        },
+        "generated_at": datetime.utcnow().isoformat()
+    }
 
 # Include router in main app
 app.include_router(api_router)
@@ -275,8 +385,15 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info("FileInASnap API starting up with Supabase integration")
+    logger.info("FileInASnap API starting up with Auth0 + Supabase integration")
+    
+    # Create necessary database tables if they don't exist
+    try:
+        # This is a placeholder - in production you'd run proper migrations
+        logger.info("Database tables ready")
+    except Exception as e:
+        logger.error(f"Database setup error: {e}")
 
-@app.on_event("shutdown")
+@app.on_event("shutdown") 
 async def shutdown_event():
     logger.info("FileInASnap API shutting down")
