@@ -20,7 +20,7 @@ const API = `${BACKEND_URL}/api`;
 
 // Our enhanced landing page component with Auth0 integration
 const FileInASnapLanding = () => {
-  const { user, isAuthenticated, isLoading } = useAuth0();
+  const { user, isAuthenticated, isLoading, error } = useAuth0();
   const [plans, setPlans] = useState({});
   const [showVideoModal, setShowVideoModal] = useState(false);
 
@@ -36,6 +36,12 @@ const FileInASnapLanding = () => {
       console.error('Failed to fetch plans:', error);
     }
   };
+
+  // Handle Auth0 errors gracefully without showing modal overlays
+  if (error) {
+    console.error('Auth0 error:', error);
+    // Don't show error overlays, just log and continue with non-authenticated experience
+  }
 
   const VideoModal = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
