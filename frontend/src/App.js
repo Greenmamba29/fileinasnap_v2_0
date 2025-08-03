@@ -170,23 +170,28 @@ const FileInASnapLanding = () => {
         {/* CTA Buttons Interactive Areas - FIXED */}
         <div className="absolute bottom-1/3 left-12 z-10">
           <div className="flex space-x-4">
-            {/* Start Free button - FUNCTIONAL */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                if (isAuthenticated) {
-                  window.location.href = '/dashboard';
-                } else {
-                  // This will trigger Auth0 login
-                  document.querySelector('[data-auth="login"]')?.click();
-                }
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg"
-              style={{ width: '160px', height: '60px' }}
-            >
-              Start Free
-            </motion.button>
+            {/* Start Free button - FIXED to use proper LoginButton */}
+            {isAuthenticated ? (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => window.location.href = '/dashboard'}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg"
+                style={{ width: '160px', height: '60px' }}
+              >
+                Go to Dashboard
+              </motion.button>
+            ) : (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                style={{ width: '160px', height: '60px' }}
+              >
+                <LoginButton className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg w-full h-full">
+                  Start Free
+                </LoginButton>
+              </motion.div>
+            )}
             
             {/* Watch Demo button - FUNCTIONAL */}
             <motion.button
