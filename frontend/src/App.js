@@ -204,11 +204,6 @@ const FileInASnapLanding = () => {
               Watch Demo
             </motion.button>
           </div>
-          
-          {/* Hidden login trigger for Start Free button */}
-          <div style={{ display: 'none' }}>
-            <LoginButton data-auth="login">Hidden Login</LoginButton>
-          </div>
         </div>
 
         {/* Mobile responsive overlay */}
