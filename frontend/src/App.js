@@ -1,0 +1,426 @@
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { motion } from "framer-motion";
+import axios from "axios";
+import "./App.css";
+
+// Import components
+import DashboardPage from "./pages/DashboardPage";
+import JournalPage from "./pages/JournalPage";
+import MemoryTimelinePage from "./pages/MemoryTimelinePage";
+import NotFound from "./pages/NotFound";
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+const API = `${BACKEND_URL}/api`;
+
+// Simple landing page component without Auth0 for now
+const FileInASnapLanding = () => {
+  const [plans, setPlans] = useState({
+    free: { name: "Free", price: 0, features: ["5 files", "Basic support"] },
+    pro: { name: "Pro", price: 9.99, features: ["100 files", "Priority support"] },
+    team: { name: "Team", price: 19.99, features: ["500 files", "Team collaboration"] },
+    enterprise: { name: "Enterprise", price: 49.99, features: ["Unlimited files", "Custom integrations"] }
+  });
+  const [showVideoModal, setShowVideoModal] = useState(false);
+
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  const fetchPlans = async () => {
+    try {
+      const response = await axios.get(`${API}/plans`);
+      setPlans(response.data);
+    } catch (error) {
+      console.error('Failed to fetch plans:', error);
+      // Keep default plans if API fails
+    }
+  };
+
+  const VideoModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-white rounded-xl p-8 w-full max-w-4xl relative"
+      >
+        <button 
+          onClick={() => setShowVideoModal(false)}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
+        >
+          ✕
+        </button>
+        
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">FileInASnap Demo</h2>
+          <div className="bg-gray-100 rounded-lg p-8 mb-6">
+            <div className="text-6xl mb-4">🎬</div>
+            <p className="text-lg text-gray-600">Demo video coming soon!</p>
+            <p className="text-sm text-gray-500 mt-2">
+              See how FileInASnap automatically organizes your files with AI-powered intelligence.
+            </p>
+          </div>
+          
+          <div className="flex justify-center space-x-4">
+            <button
+              onClick={() => window.location.href = '/dashboard'}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold"
+            >
+              Try Dashboard
+            </button>
+            <button
+              onClick={() => setShowVideoModal(false)}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-semibold"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 relative">
+        {/* Header */}
+        <div className="absolute top-0 left-0 right-0 z-10 p-6 lg:px-12">
+          <div className="flex justify-between items-center">
+            {/* Logo */}
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">📁</span>
+              </div>
+              <span className="text-2xl font-bold text-gray-900">FileInASnap</span>
+            </div>
+            
+            {/* Navigation */}
+            <nav className="hidden lg:flex items-center space-x-8">
+              <a 
+                href="#features" 
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Features
+              </a>
+              <a 
+                href="#pricing" 
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Pricing
+              </a>
+              <a 
+                href="#about" 
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                About
+              </a>
+              <button
+                onClick={() => window.location.href = '/dashboard'}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Get Started
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Hero Content */}
+        <div className="flex items-center justify-center min-h-screen px-6 lg:px-12">
+          <div className="text-center max-w-4xl">
+            <motion.h1
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8 }}
+              className="text-5xl lg:text-7xl font-bold text-gray-900 mb-6"
+            >
+              Organize your life's memories 
+              <span className="text-blue-600"> effortlessly</span>
+            </motion.h1>
+            
+            <motion.p
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-xl lg:text-2xl text-gray-600 mb-8 leading-relaxed"
+            >
+              FileInASnap uses AI to automatically organize, securely store, and easily share
+              all your photos, videos, and documents.
+            </motion.p>
+            
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <button
+                onClick={() => window.location.href = '/dashboard'}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg hover:scale-105"
+              >
+                Start Free
+              </button>
+              
+              <button
+                onClick={() => setShowVideoModal(true)}
+                className="bg-white hover:bg-gray-100 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-200 transition-all shadow-lg hover:scale-105"
+              >
+                Watch Demo
+              </button>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="px-6 lg:px-12 py-20 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+              Powerful Features for Smart Organization
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Our AI-powered platform automatically categorizes and organizes your files,
+              making it easy to find what you need when you need it.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: "🤖",
+                title: "AI Review",
+                description: "Intelligent analysis and automatic tagging of your files for easy organization."
+              },
+              {
+                icon: "📸",
+                title: "Memory Timeline",
+                description: "Visual timeline of your memories with smart grouping by dates and events."
+              },
+              {
+                icon: "☁️",
+                title: "Cloud Storage",
+                description: "Secure cloud storage with automatic backup and synchronization across devices."
+              },
+              {
+                icon: "🔒",
+                title: "Privacy First",
+                description: "End-to-end encryption ensures your memories stay private and secure."
+              },
+              {
+                icon: "🔍",
+                title: "Smart Search",
+                description: "Find any file instantly with AI-powered search across text, faces, and objects."
+              },
+              {
+                icon: "📱",
+                title: "Mobile Access",
+                description: "Access your organized files anywhere with our responsive web and mobile apps."
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ y: 50, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-gray-50 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+              >
+                <div className="text-4xl mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="px-6 lg:px-12 py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+              Choose Your Plan
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Start free and upgrade as your needs grow. All plans include our core organizing features.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {Object.entries(plans).map(([key, plan], index) => (
+              <motion.div
+                key={key}
+                initial={{ y: 50, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className={`relative p-8 rounded-xl border-2 transition-all hover:scale-105 ${
+                  key === 'pro' 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-200 bg-white hover:border-blue-300'
+                }`}
+              >
+                {key === 'pro' && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
+                
+                <div className="text-center">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                  <div className="mb-4">
+                    <span className="text-3xl font-bold">${plan.price}</span>
+                    {plan.price > 0 && <span className="text-gray-500">/month</span>}
+                  </div>
+                  
+                  <ul className="space-y-2 mb-8 text-left">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-center">
+                        <span className="text-green-500 mr-2">✓</span>
+                        <span className="text-gray-600">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <button
+                    onClick={() => window.location.href = '/dashboard'}
+                    className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+                      key === 'pro'
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                    }`}
+                  >
+                    Get Started
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="px-6 lg:px-12 py-20 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+              About FileInASnap
+            </h2>
+            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              FileInASnap was born from the frustration of lost photos, scattered documents, and the endless search for that one important file. 
+              We believe your memories and documents should be organized automatically, securely stored, and easily accessible whenever you need them.
+            </p>
+            <p className="text-xl text-gray-600 leading-relaxed">
+              Using cutting-edge AI technology, we've created a platform that doesn't just store your files – it understands them, 
+              organizes them intelligently, and makes them discoverable in ways you never thought possible.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-6 lg:px-12 py-20 bg-blue-600">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center text-white"
+          >
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+              Start organizing your memories today
+            </h2>
+            <p className="text-xl lg:text-2xl mb-8 opacity-90 max-w-2xl mx-auto">
+              Join thousands of users who have already transformed how they manage their files.
+            </p>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => window.location.href = '/dashboard'}
+              className="bg-white hover:bg-gray-100 text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg"
+            >
+              Get Started Free
+            </motion.button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="px-6 lg:px-12 py-12 bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row justify-between items-center">
+            <div className="flex items-center space-x-2 mb-6 lg:mb-0">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">📁</span>
+              </div>
+              <span className="text-xl font-bold">FileInASnap</span>
+            </div>
+            
+            <div className="flex space-x-8 text-gray-400">
+              <a href="#" className="hover:text-white transition-colors">Privacy</a>
+              <a href="#" className="hover:text-white transition-colors">Terms</a>
+              <a href="#" className="hover:text-white transition-colors">Support</a>
+            </div>
+          </div>
+          
+          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-500">
+            <p>&copy; 2025 FileInASnap. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Video Demo Modal */}
+      {showVideoModal && <VideoModal />}
+    </div>
+  );
+};
+
+// Main App with routing
+const App = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<FileInASnapLanding />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/journal" element={<JournalPage />} />
+      <Route path="/timeline" element={<MemoryTimelinePage />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </BrowserRouter>
+);
+
+export default App;
