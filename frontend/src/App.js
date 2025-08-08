@@ -8,7 +8,7 @@ import LogoutButton from "./components/auth/LogoutButton";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import LazyImage from "./components/LazyImage";
 import OptimizedFeatureCard from "./components/OptimizedFeatureCard";
-import { debounce } from "./utils/performanceOptimizations";
+import LoadingSpinner from "./components/LoadingSpinner";
 import axios from "axios";
 import "./App.css";
 
@@ -28,7 +28,7 @@ const FileInASnapLanding = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
 
   useEffect(() => {
-    debouncedFetchPlans();
+    fetchPlans();
   }, []);
 
   const fetchPlans = async () => {
@@ -37,16 +37,8 @@ const FileInASnapLanding = () => {
       setPlans(response.data);
     } catch (error) {
       console.error('Failed to fetch plans:', error);
-      // Set fallback plans to prevent UI breaking
-      setPlans({
-        free: { name: 'Free', price: 0, features: ['Basic features'] },
-        pro: { name: 'Pro', price: 19, features: ['All features'] }
-      });
     }
   };
-
-  // Debounce plans fetching to prevent excessive API calls
-  const debouncedFetchPlans = debounce(fetchPlans, 1000);
 
   // Handle Auth0 errors gracefully without showing modal overlays
   if (error) {
@@ -97,10 +89,7 @@ const FileInASnapLanding = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
+        <LoadingSpinner size="large" text="Loading FileInASnap..." />
       </div>
     );
   }
