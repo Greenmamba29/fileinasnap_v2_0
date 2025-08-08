@@ -423,11 +423,9 @@ process.on('uncaughtException', (error) => {
 });
 
 // Run CLI
-if (require.main === module) {
-  main().catch((err) => {
-    console.error('💥 Fatal CLI error:', err);
-    process.exit(1);
-  });
-}
+main().catch((err) => {
+  console.error('💥 Fatal CLI error:', err);
+  process.exit(1);
+});
 
 export { BMADOrchestrator };
