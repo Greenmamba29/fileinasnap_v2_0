@@ -8,6 +8,7 @@ import LogoutButton from "./components/auth/LogoutButton";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import LazyImage from "./components/LazyImage";
 import OptimizedFeatureCard from "./components/OptimizedFeatureCard";
+import { debounce } from "./utils/performanceOptimizations";
 import axios from "axios";
 import "./App.css";
 
@@ -27,7 +28,7 @@ const FileInASnapLanding = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
 
   useEffect(() => {
-    fetchPlans();
+    debouncedFetchPlans();
   }, []);
 
   const fetchPlans = async () => {
@@ -36,8 +37,16 @@ const FileInASnapLanding = () => {
       setPlans(response.data);
     } catch (error) {
       console.error('Failed to fetch plans:', error);
+      // Set fallback plans to prevent UI breaking
+      setPlans({
+        free: { name: 'Free', price: 0, features: ['Basic features'] },
+        pro: { name: 'Pro', price: 19, features: ['All features'] }
+      });
     }
   };
+
+  // Debounce plans fetching to prevent excessive API calls
+  const debouncedFetchPlans = debounce(fetchPlans, 1000);
 
   // Handle Auth0 errors gracefully without showing modal overlays
   if (error) {
