@@ -6,6 +6,8 @@ import Auth0ProviderWithHistory from "./auth/Auth0ProviderWithHistory";
 import LoginButton from "./components/auth/LoginButton";
 import LogoutButton from "./components/auth/LogoutButton";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import LazyImage from "./components/LazyImage";
+import OptimizedFeatureCard from "./components/OptimizedFeatureCard";
 import axios from "axios";
 import "./App.css";
 
@@ -99,10 +101,14 @@ const FileInASnapLanding = () => {
       {/* Hero Section with Full Background Image */}
       <section 
         className="min-h-screen bg-cover bg-center bg-no-repeat relative"
-        style={{
-          backgroundImage: `url('https://customer-assets.emergentagent.com/job_fileinsnap/artifacts/5ebv4t83_ChatGPT%20Image%20Jul%2016%2C%202025%2C%2003_47_10%20PM.png')`
-        }}
       >
+        {/* Lazy loaded background image */}
+        <LazyImage
+          src="https://customer-assets.emergentagent.com/job_fileinsnap/artifacts/5ebv4t83_ChatGPT%20Image%20Jul%2016%2C%202025%2C%2003_47_10%20PM.png"
+          alt="FileInASnap Hero Background"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        
         {/* Invisible interactive areas positioned over the image elements */}
         
         {/* Header Navigation Interactive Areas */}
@@ -303,18 +309,11 @@ const FileInASnapLanding = () => {
               description: "Access your organized files anywhere with our responsive web and mobile apps."
             }
           ].map((feature, index) => (
-            <motion.div
+            <OptimizedFeatureCard
               key={index}
-              initial={{ y: 50, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
-            >
-              <div className="text-4xl mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-              <p className="text-gray-600">{feature.description}</p>
-            </motion.div>
+              feature={feature}
+              index={index}
+            />
           ))}
         </div>
       </section>

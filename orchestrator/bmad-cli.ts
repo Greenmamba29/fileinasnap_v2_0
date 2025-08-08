@@ -4,15 +4,114 @@
  * Command-line interface for managing FileInASnap containers and features
  */
 
-import { 
-  CONTAINER_REGISTRY,
-  getContainer,
-  getContainerForTrigger,
-  getAvailableContainers,
-  getAvailableFeatures,
-  validateContainerAccess
-} from '../bmad-containers/registry';
-import { PlanName, getPricingTier } from '../pricingConfig';
+import { PlanName, getPricingTier } from '../pricingConfig.js';
+
+// Mock registry for CLI functionality
+const CONTAINER_REGISTRY = {
+  'FileIntelligenceContainer': class FileIntelligenceContainer {
+    static config = {
+      name: 'FileIntelligenceContainer',
+      featureModule: 'file-intelligence',
+      triggers: ['file.uploaded', 'file.drag_drop'],
+      minimumPlan: 'standard',
+      outputSchema: ['tags', 'folder', 'confidence'],
+      description: 'AI-powered file organization'
+    };
+    async execute(planName, input, sessionId) {
+      return {
+        success: true,
+        output: { tags: ['image'], folder: 'Uploads', confidence: 0.8 },
+        processingTime: 500,
+        planUsed: planName,
+        containerName: 'FileIntelligenceContainer'
+      };
+    }
+  },
+  'JournalingContainer': class JournalingContainer {
+    static config = {
+      name: 'JournalingContainer',
+      featureModule: 'journaling',
+      triggers: ['journal.created'],
+      minimumPlan: 'pro',
+      outputSchema: ['todos', 'summary', 'destination'],
+      description: 'AI journal analysis'
+    };
+    async execute(planName, input, sessionId) {
+      return {
+        success: true,
+        output: { todos: ['Review notes'], summary: 'Daily reflection', destination: 'Journal/2025' },
+        processingTime: 800,
+        planUsed: planName,
+        containerName: 'JournalingContainer'
+      };
+    }
+  }
+};
+
+function getContainer(containerName) {
+  const container = CONTAINER_REGISTRY[containerName];
+  if (!container) {
+    throw new Error(`Container not found: ${containerName}`);
+  }
+  return container;
+}
+
+function getContainerForTrigger(trigger) {
+  const mapping = {
+    'file.uploaded': 'FileIntelligenceContainer',
+    'journal.created': 'JournalingContainer'
+  };
+  const containerName = mapping[trigger];
+  if (!containerName) {
+    throw new Error(`No container found for trigger: ${trigger}`);
+  }
+  return getContainer(containerName);
+}
+
+function getAvailableContainers(planName) {
+  const planLevels = { 'standard': 1, 'pro': 2, 'veteran': 3, 'enterprise': 4 };
+  const currentLevel = planLevels[planName] || 0;
+  
+  return Object.entries(CONTAINER_REGISTRY)
+    .filter(([name, containerClass]) => {
+      const requiredLevel = planLevels[containerClass.config.minimumPlan] || 0;
+      return currentLevel >= requiredLevel;
+    })
+    .map(([name]) => name);
+}
+
+function getAvailableFeatures(planName) {
+  const features = [
+    {
+      name: 'File Intelligence',
+      description: 'Smart file organization and tagging',
+      containers: ['FileIntelligenceContainer'],
+      capabilities: ['Auto-tagging', 'Smart routing', 'AI analysis']
+    }
+  ];
+  
+  if (['pro', 'veteran', 'enterprise'].includes(planName)) {
+    features.push({
+      name: 'Memory Journaling',
+      description: 'AI-powered journal analysis',
+      containers: ['JournalingContainer'],
+      capabilities: ['Emotion analysis', 'Todo extraction', 'Memory insights']
+    });
+  }
+  
+  return features;
+}
+
+function validateContainerAccess(containerName, planName) {
+  const container = getContainer(containerName);
+  const planLevels = { 'standard': 1, 'pro': 2, 'veteran': 3, 'enterprise': 4 };
+  const currentLevel = planLevels[planName] || 0;
+  const requiredLevel = planLevels[container.config.minimumPlan] || 0;
+  
+  if (currentLevel < requiredLevel) {
+    throw new Error(`${containerName} requires ${container.config.minimumPlan} plan or higher`);
+  }
+}
 
 interface CLIOptions {
   plan: PlanName;

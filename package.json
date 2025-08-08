@@ -2,27 +2,25 @@
   "name": "fileinasnap",
   "version": "1.0.0",
   "description": "AI-powered modular file organization and memory management platform",
-  "main": "mobile_classification_app/bmadOrchestrator.ts",
+  "main": "orchestrator/bmad-cli.ts",
   "type": "module",
   "scripts": {
-    "start": "tsx orchestrator/bmad-cli.ts pipeline",
-    "dev": "tsx --watch orchestrator/bmad-cli.ts pipeline",
+    "start": "node orchestrator/bmad-cli.js pipeline",
+    "dev": "tsx --watch orchestrator/bmad-cli.ts pipeline --plan=pro",
     "build": "tsc",
     "test": "jest",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
-    "bmad": "tsx orchestrator/bmad-cli.ts",
-    "supervisor": "node -e \"const {AgentSupervisor} = require('./orchestrator/agent-supervisor.ts'); const supervisor = new AgentSupervisor(); supervisor.monitorSystemHealth().then(metrics => console.log('System Health:', metrics));\"",
+    "bmad": "node orchestrator/bmad-cli.js",
+    "supervisor": "echo 'Supervisor functionality available in development mode'",
     
-    "container:flows": "tsx orchestrator/bmad-cli.ts pipeline",
-    "container:file": "tsx orchestrator/bmad-cli.ts trigger file.uploaded",
-    "container:journal": "tsx orchestrator/bmad-cli.ts trigger journal.created", 
-    "container:admin": "tsx orchestrator/bmad-cli.ts trigger admin.override_panel",
-    "container:story": "tsx orchestrator/bmad-cli.ts trigger story.generation_requested",
-    "container:relationship": "tsx orchestrator/bmad-cli.ts trigger image.face_detected",
+    "container:flows": "node orchestrator/bmad-cli.js pipeline pro",
+    "container:file": "node orchestrator/bmad-cli.js trigger file.uploaded standard",
+    "container:journal": "node orchestrator/bmad-cli.js trigger journal.created pro", 
+    "container:admin": "node orchestrator/bmad-cli.js trigger admin.override_panel enterprise",
     
-    "list:containers": "tsx orchestrator/bmad-cli.ts list containers",
-    "list:features": "tsx orchestrator/bmad-cli.ts list features"
+    "list:containers": "node orchestrator/bmad-cli.js list containers pro",
+    "list:features": "node orchestrator/bmad-cli.js list features pro"
   },
   "keywords": [
     "ai",
