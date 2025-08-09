@@ -1,0 +1,22 @@
+[build]
+  publish = "build"
+  command = "npm run build"
+
+# Auth0 callback handling
+[[redirects]]
+  from = "/callback"
+  to = "/callback"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/auth-debug"
+  to = "/auth-debug"
+  status = 200
+  force = false
+
+# Catch-all redirect for SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

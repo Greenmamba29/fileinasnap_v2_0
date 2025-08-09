@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import Auth0ProviderWithHistory from "./auth/Auth0ProviderWithHistory";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import CallbackPage from "./components/auth/CallbackPage";
+import Auth0Diagnostics from "./components/auth/Auth0Diagnostics";
 import DashboardPage from "./pages/DashboardPage";
 import JournalPage from "./pages/JournalPage";
 import MemoryTimelinePage from "./pages/MemoryTimelinePage";
@@ -408,6 +409,7 @@ const App = () => (
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/callback" element={<CallbackPage />} />
+        <Route path="/auth-debug" element={<Auth0Diagnostics />} />
         <Route 
           path="/dashboard" 
           element={

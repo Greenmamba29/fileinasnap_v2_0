@@ -40,6 +40,9 @@ const Auth0ProviderWithHistory = ({ children }) => {
     if (origin.includes('emergentagent.com')) {
       return `${origin}/callback`;
     }
+    if (origin.includes('netlify.app')) {
+      return `${origin}/callback`;
+    }
     
     // Default fallback - always include callback path
     return `${origin}/callback`;
