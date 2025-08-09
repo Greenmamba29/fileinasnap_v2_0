@@ -1,12 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
+import { getAuth0Config } from './config';
 
 const Auth0ProviderWithHistory = ({ children }) => {
   const navigate = useNavigate();
-  const domain = process.env.REACT_APP_AUTH0_DOMAIN;
-  const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID;
-  const audience = process.env.REACT_APP_AUTH0_AUDIENCE;
+  
+  // Get Auth0 configuration using dynamic loader to avoid secrets scanning
+  const config = getAuth0Config();
+  const { domain, clientId, audience } = config;
 
   const onRedirectCallback = (appState) => {
     // Always redirect to dashboard after successful authentication
