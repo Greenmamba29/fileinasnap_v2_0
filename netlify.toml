@@ -3,7 +3,6 @@
   command = "npm ci && npm run build"
   publish = "build"
   ignore = "false"
-  processing = { skip_processing = true }
   
 [build.processing]
   skip_processing = true
