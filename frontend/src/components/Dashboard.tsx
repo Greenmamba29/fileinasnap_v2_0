@@ -7,6 +7,7 @@ import AITaskQueue from './dashboard/AITaskQueue';
 import FloatingActionBar from './dashboard/FloatingActionBar';
 import DashboardHeader from './dashboard/DashboardHeader';
 import CreatorPanel from './dashboard/CreatorPanel';
+<<<<<<< HEAD
 import MCPIntegrationPanel from './dashboard/MCPIntegrationPanel';
 import { type UserPlan, hasFeatureAccess } from '@/lib/featureConfig';
 
@@ -16,6 +17,15 @@ const Dashboard = () => {
   const user: UserPlan = {
     plan: 'standard',
     creatorTrack: false, // This would be set based on onboarding selection
+=======
+import { type UserPlan } from '@/lib/featureConfig';
+
+const Dashboard = () => {
+  // Mock user data - in real app this would come from auth/database
+  const user: UserPlan = {
+    plan: 'pro',
+    creatorTrack: true, // This would be set based on onboarding selection
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
   };
 
   return (
@@ -28,6 +38,7 @@ const Dashboard = () => {
           <CreatorPanel user={user} />
         </div>
         
+<<<<<<< HEAD
         {/* MCP Integration Panel - Full Width */}
         {hasFeatureAccess(user, 'mcpIntegration') && (
           <div className="mb-8">
@@ -35,6 +46,8 @@ const Dashboard = () => {
           </div>
         )}
         
+=======
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-8">

@@ -84,6 +84,7 @@ export const featureConfig: Record<string, FeatureFlag> = {
     creatorTrack: true,
   },
   
+<<<<<<< HEAD
   // MCP & TAMBO Integration Features
   mcpIntegration: {
     id: 'mcpIntegration',
@@ -131,6 +132,8 @@ export const featureConfig: Record<string, FeatureFlag> = {
     plans: ['enterprise'],
   },
   
+=======
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
   // Standard Features
   fileOrganizer: {
     id: 'fileOrganizer',

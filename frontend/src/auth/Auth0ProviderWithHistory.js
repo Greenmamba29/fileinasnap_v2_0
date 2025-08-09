@@ -9,10 +9,15 @@ const Auth0ProviderWithHistory = ({ children }) => {
   const audience = process.env.REACT_APP_AUTH0_AUDIENCE;
 
   const onRedirectCallback = (appState) => {
+<<<<<<< HEAD
     // Always redirect to dashboard after successful authentication
     const returnTo = appState?.returnTo || '/dashboard';
     
     // Clean navigation to dashboard
+=======
+    // More specific redirect handling to prevent overlay issues
+    const returnTo = appState?.returnTo || '/dashboard';
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
     navigate(returnTo, { replace: true });
   };
 
@@ -28,6 +33,7 @@ const Auth0ProviderWithHistory = ({ children }) => {
     );
   }
 
+<<<<<<< HEAD
   // Determine the correct redirect URI based on environment
   const getRedirectUri = () => {
     const origin = window.location.origin;
@@ -47,18 +53,29 @@ const Auth0ProviderWithHistory = ({ children }) => {
     return `${origin}/callback`;
   };
 
+=======
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
   return (
     <Auth0Provider
       domain={domain}
       clientId={clientId}
       authorizationParams={{
+<<<<<<< HEAD
         redirect_uri: getRedirectUri(),
         ...(audience && { audience: audience }),
+=======
+        redirect_uri: window.location.origin,
+        audience: audience,
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
         scope: "openid profile email read:files write:files read:analytics"
       }}
       onRedirectCallback={onRedirectCallback}
       useRefreshTokens={true}
       cacheLocation="localstorage"
+<<<<<<< HEAD
+=======
+      // Remove skipRedirectCallback to prevent Auth0 overlay issues
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
     >
       {children}
     </Auth0Provider>

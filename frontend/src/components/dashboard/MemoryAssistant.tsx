@@ -6,8 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+<<<<<<< HEAD
 import { Search, Sparkles, FileText, Image, Users, Radar, FolderPlus, BookOpen, Eye, Crown, ArrowRight } from 'lucide-react';
 import { type UserPlan, hasFeatureAccess } from '@/lib/featureConfig';
+=======
+import { Search, Sparkles, FileText, Image, Users, Radar, FolderPlus, BookOpen, Eye } from 'lucide-react';
+import { type UserPlan } from '@/lib/featureConfig';
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
 
 interface MemoryAssistantProps {
   user: UserPlan;
@@ -23,10 +28,17 @@ const MemoryAssistant = ({ user }: MemoryAssistantProps) => {
   const [language, setLanguage] = useState('en');
   const [hoveredResult, setHoveredResult] = useState<string | null>(null);
   
+<<<<<<< HEAD
   // Check if user has access to SnapBot features
   const hasSnapBotAccess = hasFeatureAccess(user, 'snapBotPanel');
   const hasAdvancedFeatures = hasFeatureAccess(user, 'snapBotInsights');
   const hasVoiceSearch = hasFeatureAccess(user, 'voiceSearch');
+=======
+  // Mock user plan - in real app, this would come from auth/context
+  const userPlan = 'pro'; // 'standard', 'pro', 'veteran', 'enterprise'
+  
+  const isPlanGated = !['pro', 'veteran', 'enterprise'].includes(userPlan);
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
 
   const mockResults = [
     {
@@ -59,14 +71,23 @@ const MemoryAssistant = ({ user }: MemoryAssistantProps) => {
   ];
 
   const handleSearch = (searchQuery: string = query) => {
+<<<<<<< HEAD
     if (!hasSnapBotAccess) {
       // Show upgrade gate instead of basic alert
+=======
+    if (isPlanGated) {
+      alert('SnapBot is available on Pro plans and above. Upgrade to unlock AI-powered search!');
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
       return;
     }
     
     setIsSearching(true);
+<<<<<<< HEAD
     const enhancementLevel = hasAdvancedFeatures ? 'Advanced AI' : 'Standard AI';
     setEnhancedQuery(`${enhancementLevel}: "${searchQuery}" → searching across files, journals, and relationships`);
+=======
+    setEnhancedQuery(`Enhanced: "${searchQuery}" → searching across files, journals, and relationships`);
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
     
     setTimeout(() => {
       setIsSearching(false);
@@ -92,6 +113,7 @@ const MemoryAssistant = ({ user }: MemoryAssistantProps) => {
     }
   };
 
+<<<<<<< HEAD
   // Show upgrade gate if user doesn't have SnapBot access
   if (!hasSnapBotAccess) {
     return (
@@ -150,6 +172,18 @@ const MemoryAssistant = ({ user }: MemoryAssistantProps) => {
           </div>
         </div>
         <p className="text-gray-600">AI-powered memory search with {hasAdvancedFeatures ? 'advanced insights' : 'standard logic'}</p>
+=======
+  return (
+    <Card className="p-6 hover-lift animate-fade-in">
+      <div className="mb-6">
+        <div className="flex items-center space-x-2 mb-2">
+          <span className="text-2xl">🫰</span>
+          <h2 className="text-xl font-space font-semibold text-gray-900">
+            SnapBot Assistant
+          </h2>
+        </div>
+        <p className="text-gray-600">AI-powered memory search with fallback logic</p>
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
       </div>
       
       <div className="space-y-4">

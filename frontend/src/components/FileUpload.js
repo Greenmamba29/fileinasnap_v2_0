@@ -1,5 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
+<<<<<<< HEAD
+=======
+import LazyImage from './LazyImage';
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -128,7 +132,11 @@ const FileUpload = ({ onUploadSuccess, onUploadError }) => {
           </div>
         ) : (
           <div className="space-y-4">
+<<<<<<< HEAD
             <div className="text-6xl text-gray-400">📁</div>
+=======
+            <div className="text-6xl text-gray-400" role="img" aria-label="Upload folder">📁</div>
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
             <div>
               <p className="text-lg font-medium text-gray-900">
                 {isDragOver ? 'Drop file here' : 'Drop files here or click to browse'}

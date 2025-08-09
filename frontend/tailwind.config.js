@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
+<<<<<<< HEAD
     './src/**/*.{js,jsx,ts,tsx}',
     './public/index.html'
   ],
@@ -30,3 +31,13 @@ module.exports = {
   plugins: [],
   darkMode: 'class'
 };
+=======
+    "./src/**/*.{js,jsx,ts,tsx}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f

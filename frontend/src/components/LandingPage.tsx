@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Play, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+<<<<<<< HEAD
 import HeroTextCarousel from './HeroTextCarousel';
 const LandingPage = () => {
   return <div className="min-h-screen">
@@ -23,12 +24,45 @@ const LandingPage = () => {
           <a href="#blog" className="text-gray-700 hover:text-gray-900 font-medium transition-colors text-sm">Blog</a>
           <Link to="/dashboard">
             <Button className="bg-yellow-400 text-black hover:bg-yellow-500 font-semibold px-4 py-2 rounded-full text-sm">
+=======
+const LandingPage = () => {
+  return <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-6 md:px-12 relative z-10">
+        <div className="flex items-center space-x-3">
+          <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+            <div className="w-6 h-6 bg-white rounded-sm"></div>
+          </div>
+          <span className="text-2xl font-space font-bold text-gray-900">FileInASnap</span>
+        </div>
+        
+        <nav className="hidden md:flex items-center space-x-8">
+          <a href="#features" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">Features</a>
+          <a href="#pricing" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">Pricing</a>
+          <a href="#blog" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">Blog</a>
+          <Link to="/dashboard">
+            <Button className="bg-yellow-400 text-black hover:bg-yellow-500 font-semibold px-6 py-3 rounded-full">
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
               Sign Up
             </Button>
           </Link>
         </nav>
       </header>
 
+<<<<<<< HEAD
+=======
+      {/* Hero Section with Background Image */}
+      <div className="relative min-h-[80vh] flex items-center px-6 md:px-12 py-8 md:py-16 max-w-7xl mx-auto bg-cover bg-center bg-no-repeat rounded-3xl overflow-hidden" style={{
+      backgroundImage: `url('/lovable-uploads/e09ce0e3-e96e-4c20-b3e3-21f8918c993c.png')`
+    }}>
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/20 rounded-3xl"></div>
+        
+        {/* Hero Content */}
+        
+      </div>
+
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
       {/* Features Section */}
       <section id="features" className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="text-center mb-16">

@@ -7,7 +7,11 @@ const LoginButton = ({ className = "", children = "Log In" }) => {
   const handleLogin = () => {
     loginWithRedirect({
       appState: {
+<<<<<<< HEAD
         returnTo: '/dashboard'
+=======
+        returnTo: window.location.pathname
+>>>>>>> 72681af89fe1c601033e42c7ed839ff339df0a6f
       }
     });
   };
