@@ -1,19 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useAuth0 } from '@auth0/auth0-react';
-import Auth0ProviderWithHistory from "./auth/Auth0ProviderWithHistory";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
-import CallbackPage from "./components/auth/CallbackPage";
-import Auth0Diagnostics from "./components/Auth0Diagnostics";
-import DashboardPage from "./pages/DashboardPage";
-import JournalPage from "./pages/JournalPage";
-import MemoryTimelinePage from "./pages/MemoryTimelinePage";
-import NotFound from "./pages/NotFound";
 import "./App.css";
 
 // Enhanced Landing Page Component
 const LandingPage = () => {
-  const { loginWithRedirect, logout, isAuthenticated, user } = useAuth0();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  
+  const handleSignIn = () => {
+    // Placeholder for future Auth0 integration
+    alert('Sign in functionality will be available soon!');
+  };
+  
+  const handleSignOut = () => {
+    setIsAuthenticated(false);
+    setUser(null);
+  };
 
   const faq = [
     {
@@ -102,13 +104,13 @@ const LandingPage = () => {
               {!isAuthenticated ? (
                 <>
                   <button 
-                    onClick={() => loginWithRedirect()}
+                    onClick={handleSignIn}
                     className="px-3 py-2 text-sm text-white/90 hover:text-white drop-shadow-sm"
                   >
                     Sign in
                   </button>
                   <button
-                    onClick={() => loginWithRedirect()}
+                    onClick={handleSignIn}
                     className="rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 px-4 py-2 text-white text-sm font-medium hover:bg-white/30 transition-all"
                   >
                     Get Started Free
@@ -124,7 +126,7 @@ const LandingPage = () => {
                     Dashboard
                   </button>
                   <button
-                    onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+                    onClick={handleSignOut}
                     className="px-3 py-2 text-sm text-white/90 hover:text-white drop-shadow-sm"
                   >
                     Logout
@@ -159,7 +161,7 @@ const LandingPage = () => {
                 {!isAuthenticated ? (
                   <>
                     <button
-                      onClick={() => loginWithRedirect()}
+                      onClick={handleSignIn}
                       className="rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-3 text-white font-medium shadow-xl transition-all"
                     >
                       Get Started Free
@@ -367,7 +369,7 @@ const LandingPage = () => {
             {!isAuthenticated ? (
               <>
                 <button 
-                  onClick={() => loginWithRedirect()}
+                  onClick={handleSignIn}
                   className="rounded-xl bg-blue-600 px-5 py-3 text-white font-medium"
                 >
                   Get Started Free
@@ -405,39 +407,10 @@ const LandingPage = () => {
 
 const App = () => (
   <BrowserRouter>
-    <Auth0ProviderWithHistory>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/callback" element={<CallbackPage />} />
-        <Route path="/auth-debug" element={<Auth0Diagnostics />} />
-        <Route path="/auth0-diagnostics" element={<Auth0Diagnostics />} />
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/journal" 
-          element={
-            <ProtectedRoute>
-              <JournalPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/timeline" 
-          element={
-            <ProtectedRoute>
-              <MemoryTimelinePage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Auth0ProviderWithHistory>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="*" element={<LandingPage />} />
+    </Routes>
   </BrowserRouter>
 );
 
