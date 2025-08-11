@@ -12,7 +12,7 @@ import logging
 import uuid
 import base64
 import mimetypes
-from auth import get_current_user, require_permission, auth0_management
+from supabase_auth import get_current_user, require_permission
 
 # Load environment variables
 ROOT_DIR = Path(__file__).parent
@@ -30,14 +30,15 @@ security = HTTPBearer()
 
 # Pydantic Models
 class UserProfile(BaseModel):
-    auth0_user_id: str
+    id: str
     email: str
     full_name: Optional[str] = None
-    organization: Optional[str] = None
-    subscription_tier: str = "free"
-    profile_picture: Optional[str] = None
+    tier: str = "standard"
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
+    referral_code: Optional[str] = None
+    storage_bonus: int = 0
+    storage_used: int = 0
 
 class ProfileUpdate(BaseModel):
     full_name: Optional[str] = None
@@ -62,40 +63,37 @@ class UserService:
     def __init__(self, supabase_client: Client):
         self.supabase = supabase_client
     
-    async def get_or_create_profile(self, auth0_user: Dict) -> Dict:
-        """Get existing profile or create new one for Auth0 user"""
+    async def get_or_create_profile(self, supabase_user: Dict) -> Dict:
+        """Get existing profile or create new one for Supabase user"""
         try:
-            # Check if profile exists
-            existing_profile = self.supabase.table('user_profiles').select('*').eq('auth0_user_id', auth0_user['user_id']).execute()
+            # Check if profile exists using user id
+            existing_profile = self.supabase.table('profiles').select('*').eq('id', supabase_user['sub']).execute()
             
             if existing_profile.data:
                 return existing_profile.data[0]
             
-            # Create new profile
+            # Create new profile if it doesn't exist
             profile_data = {
-                'id': str(uuid.uuid4()),
-                'auth0_user_id': auth0_user['user_id'],
-                'email': auth0_user['email'],
-                'full_name': auth0_user.get('name'),
-                'subscription_tier': 'free',
-                'created_at': datetime.utcnow().isoformat(),
-                'updated_at': datetime.utcnow().isoformat()
+                'id': supabase_user['sub'],
+                'email': supabase_user['email'],
+                'full_name': supabase_user.get('user_metadata', {}).get('full_name', ''),
+                'tier': 'standard'
             }
             
-            result = self.supabase.table('user_profiles').insert(profile_data).execute()
+            result = self.supabase.table('profiles').insert(profile_data).execute()
             return result.data[0] if result.data else profile_data
             
         except Exception as e:
             logging.error(f"Error managing user profile: {e}")
             raise HTTPException(status_code=500, detail="Profile management error")
     
-    async def update_profile(self, auth0_user_id: str, profile_data: ProfileUpdate) -> Dict:
+    async def update_profile(self, supabase_user_id: str, profile_data: ProfileUpdate) -> Dict:
         """Update user profile"""
         try:
             update_data = profile_data.dict(exclude_unset=True)
             update_data['updated_at'] = datetime.utcnow().isoformat()
             
-            result = self.supabase.table('user_profiles').update(update_data).eq('auth0_user_id', auth0_user_id).execute()
+            result = self.supabase.table('profiles').update(update_data).eq('id', supabase_user_id).execute()
             return result.data[0] if result.data else None
             
         except Exception as e:
@@ -215,7 +213,7 @@ file_service = FileService(supabase)
 # API Routes
 @api_router.get("/")
 async def root():
-    return {"message": "FileInASnap API - Powered by Auth0 + Supabase", "status": "healthy"}
+    return {"message": "FileInASnap API - Powered by Supabase", "status": "healthy"}
 
 @api_router.get("/health")
 async def health_check():
@@ -228,7 +226,7 @@ async def get_profile(current_user: Dict = Depends(get_current_user)):
         profile = await user_service.get_or_create_profile(current_user)
         
         return {
-            "auth0_data": current_user,
+            "supabase_data": current_user,
             "profile_data": profile
         }
     except Exception as e:
@@ -241,7 +239,7 @@ async def update_profile(
     current_user: Dict = Depends(get_current_user)
 ):
     """Update user profile"""
-    updated_profile = await user_service.update_profile(current_user['user_id'], profile_data)
+    updated_profile = await user_service.update_profile(current_user['sub'], profile_data)
     
     if not updated_profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -298,10 +296,14 @@ async def upload_file(
     profile = await user_service.get_or_create_profile(current_user)
     
     # Check file count limits based on subscription
-    user_files = await file_service.get_user_files(current_user['user_id'])
+    user_files = await file_service.get_user_files(current_user['sub'])
     
     plans_response = await get_plans()
-    user_plan = plans_response.get(profile['subscription_tier'], plans_response['free'])
+    # Map standard tier to free for plan lookup
+    tier = profile.get('tier', 'standard')
+    if tier == 'standard':
+        tier = 'free'
+    user_plan = plans_response.get(tier, plans_response['free'])
     max_files = user_plan['max_files']
     
     if max_files != -1 and len(user_files) >= max_files:
@@ -310,7 +312,7 @@ async def upload_file(
             detail=f"File limit exceeded. Your {profile['subscription_tier']} plan allows {max_files} files."
         )
     
-    result = await file_service.upload_file(file_data, current_user['user_id'])
+    result = await file_service.upload_file(file_data, current_user['sub'])
     return result
 
 @api_router.get("/files")
@@ -319,7 +321,7 @@ async def get_files(
     current_user: Dict = Depends(get_current_user)
 ):
     """Get user's files"""
-    files = await file_service.get_user_files(current_user['user_id'], limit)
+    files = await file_service.get_user_files(current_user['sub'], limit)
     return {"files": files, "count": len(files)}
 
 @api_router.delete("/files/{file_id}")
@@ -328,7 +330,7 @@ async def delete_file(
     current_user: Dict = Depends(get_current_user)
 ):
     """Delete a file"""
-    success = await file_service.delete_file(file_id, current_user['user_id'])
+    success = await file_service.delete_file(file_id, current_user['sub'])
     return {"message": "File deleted successfully" if success else "File deletion failed"}
 
 # Analytics endpoint (Pro+ only)
@@ -338,7 +340,7 @@ async def get_usage_analytics(
 ):
     """Get usage analytics for Pro+ users"""
     profile = await user_service.get_or_create_profile(current_user)
-    files = await file_service.get_user_files(current_user['user_id'], 1000)
+    files = await file_service.get_user_files(current_user['sub'], 1000)
     
     # Calculate usage statistics
     total_files = len(files)
@@ -353,8 +355,8 @@ async def get_usage_analytics(
         type_breakdown[type_category] = type_breakdown.get(type_category, 0) + 1
     
     return {
-        "user_id": current_user['user_id'],
-        "subscription_tier": profile['subscription_tier'],
+        "user_id": current_user['sub'],
+        "subscription_tier": profile.get('tier', 'standard'),
         "usage": {
             "total_files": total_files,
             "total_size_bytes": total_size,
@@ -385,7 +387,7 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info("FileInASnap API starting up with Auth0 + Supabase integration")
+    logger.info("FileInASnap API starting up with Supabase integration")
     
     # Create necessary database tables if they don't exist
     try:

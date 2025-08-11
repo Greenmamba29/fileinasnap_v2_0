@@ -8,6 +8,16 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      '/db-health': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+      },
+      '/api': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+      },
+    },
   },
   plugins: [
     react(),
