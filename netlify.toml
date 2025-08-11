@@ -1,7 +1,7 @@
 [build]
   base = "frontend"
   command = "npm ci --legacy-peer-deps && npm run build"
-  publish = "frontend/build"
+  publish = "build"
   
 [build.processing]
   skip_processing = true
@@ -17,6 +17,7 @@
 [build.environment]
   NODE_VERSION = "20"
   NETLIFY_USE_YARN = "false"
+  NPM_FLAGS = "--legacy-peer-deps"
   SECRETS_SCAN_ENABLED = "false"
   NETLIFY_SECRETS_SCAN = "false"
   DISABLE_SECRETS_SCAN = "true"
