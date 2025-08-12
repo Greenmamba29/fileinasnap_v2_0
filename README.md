@@ -230,8 +230,32 @@ MAKE_WEBHOOK_URL=your_make_webhook
 MAKE_API_KEY=your_make_api_key
 ```
 
+## 🚀 Deployment
+
+### Production Deployment (Netlify)
+
+FileInASnap is configured for seamless Netlify deployment with all security headers and build optimizations.
+
+**Quick Deploy:**
+```bash
+# Get your Netlify Personal Access Token from:
+# https://app.netlify.com/user/applications#personal-access-tokens
+
+NETLIFY_AUTH_TOKEN=YOUR_TOKEN \
+NETLIFY_SITE_ID=5227ed44-e0cc-40cc-819f-aa26654f5ee3 \
+./scripts/netlify-apply-config.sh
+```
+
+**Site Information:**
+- **Production URL**: https://fileinasnap.com
+- **Netlify URL**: https://fileinasnap-frontend.netlify.app
+- **Admin Panel**: https://app.netlify.com/projects/fileinasnap-frontend
+
+For detailed deployment instructions, troubleshooting, and configuration details, see [NETLIFY_DEPLOYMENT.md](./NETLIFY_DEPLOYMENT.md).
+
 ## 📚 Documentation
 
+- [Netlify Deployment](./NETLIFY_DEPLOYMENT.md) - Complete deployment guide with troubleshooting
 - [Architecture Guide](./docs/architecture.md) - BMAD methodology and agent containers
 - [UI Guide](./docs/ui-guide.md) - Lovable components and user interface
 - [API Reference](./docs/api.md) - Backend API documentation
