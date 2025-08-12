@@ -63,6 +63,13 @@ const LandingPage = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [dbHealth, setDbHealth] = useState({ ok: true, bucket_ok: true, rpc_ok: true, loading: true });
 
+  // Auto-redirect authenticated users to dashboard
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      window.location.href = '/dashboard';
+    }
+  }, [isAuthenticated, authLoading]);
+
   useEffect(() => {
     // Handle scroll effects
     const handleScroll = () => {
@@ -457,39 +464,36 @@ const LandingPage = () => {
                 {/* Right Column - Hero Image (Optimized Aspect Ratio) */}
                 <div className="lg:col-span-6 xl:col-span-7 relative mt-12 lg:mt-0">
                   <div className="aspect-[3/2] lg:aspect-[16/9] xl:aspect-[3/2] overflow-hidden rounded-2xl shadow-xl bg-gradient-to-br from-blue-50 to-indigo-100">
-                    <picture>
-                      <source
-                        type="image/webp"
-                        srcSet="/hero-main.webp 1x"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 600px"
-                      />
-                      <img
-                        src="https://customer-assets.emergentagent.com/job_fileinsnap/artifacts/5ebv4t83_ChatGPT%20Image%20Jul%2016%2C%202025%2C%2003_47_10%20PM.png"
-                        alt="Woman smiling while using FileInASnap on her phone, with AI-powered photo organization interface showing memory timeline, sunset photos, and smart categorization features"
-                        className="w-full h-full object-cover object-center"
-                        loading="eager"
-                        width="1200"
-                        height="800"
-                        onError={(e) => {
-                          console.log('Hero image failed to load, showing AI demo interface');
-                          // Enhanced fallback with AI photo organization mockup
+                    <img
+                      src="https://res.cloudinary.com/emergent-app/image/upload/v1723412039/fileinsnap_v2_0_main_frontend_src_components_ui_Organize_your_photos_automatically_with_private_AI._so_your_memories_are_always_easy_to_find._s3n0rf.png"
+                      alt="Woman smiling while using FileInASnap on her phone, with AI-powered photo organization interface showing memory timeline, sunset photos, and smart categorization features"
+                      className="w-full h-full object-cover object-center"
+                      loading="eager"
+                      width="1200"
+                      height="800"
+                      onError={(e) => {
+                        console.log('Hero image failed to load, showing fallback');
+                        // Safe fallback handling
+                        if (e.target && e.target.parentElement) {
                           e.target.style.display = 'none';
-                          e.target.parentElement.innerHTML = `
-                            <div class="flex items-center justify-center h-full bg-gradient-to-br from-blue-600 to-purple-600 text-white p-8">
-                              <div class="text-center">
-                                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                  <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M3 4v16h18V4H3zm8.5 9.5l2.5 3.01L16.5 14l4.5 6H3l4.5-6z"/>
-                                  </svg>
-                                </div>
-                                <h3 class="text-lg font-semibold mb-2">AI Photo Organization</h3>
-                                <p class="text-sm text-white/80">Smart tagging • Memory timeline • Private by design</p>
-                              </div>
-                            </div>
-                          `;
-                        }}
-                      />
-                    </picture>
+                          // Show fallback div
+                          const fallbackDiv = e.target.nextElementSibling;
+                          if (fallbackDiv) {
+                            fallbackDiv.style.display = 'flex';
+                          }
+                        }
+                      }}
+                    />
+                    {/* Fallback UI - initially hidden */}
+                    <div className="hidden w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 text-white p-8 items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                          <Upload className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-lg font-semibold mb-2">AI Photo Organization</h3>
+                        <p className="text-sm text-white/80">Smart tagging • Memory timeline • Private by design</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
