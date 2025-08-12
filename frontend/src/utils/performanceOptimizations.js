@@ -1,4 +1,5 @@
 // Performance optimization utilities
+import React from 'react';
 
 export const debounce = (func, wait) => {
   let timeout;

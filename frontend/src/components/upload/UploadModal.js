@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { authedFetch } from '../../lib/authedFetch';
+import { apiService } from '../../lib/apiService';
 import { 
   Upload, 
   File, 
@@ -37,7 +38,6 @@ const UploadModal = ({ isOpen, onClose, selectedFolder: initialFolder, onUploadC
     setLoadingFolders(true);
     try {
       // Try using the API service first
-      const { apiService } = await import('../../lib/apiService');
       const data = await apiService.getFolders();
       setFolders(data || []);
       // auto-select first folder if any
@@ -72,7 +72,6 @@ const UploadModal = ({ isOpen, onClose, selectedFolder: initialFolder, onUploadC
     if (!newFolderName.trim()) return selectedFolder;
     try {
       // Try using API service first
-      const { apiService } = await import('../../lib/apiService');
       const created = await apiService.createFolder(newFolderName.trim());
       setFolders((f) => [created, ...f]);
       setSelectedFolder(created.id);
