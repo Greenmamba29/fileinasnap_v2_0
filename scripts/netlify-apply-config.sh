@@ -21,17 +21,17 @@ if [[ -z "${NETLIFY_AUTH_TOKEN:-}" || -z "${NETLIFY_SITE_ID:-}" ]]; then
   exit 1
 fi
 
-# Update site build settings
+# Update site build settings (quote cmd properly)
 cat <<JSON | curl -sS -X PATCH \
   -H "Authorization: Bearer ${NETLIFY_AUTH_TOKEN}" \
   -H "Content-Type: application/json" \
   --data-binary @- \
-  "https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID}" | jq -r '.id // "(no id)"' >/dev/null
+  "https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID}" >/dev/null
 {
   "build_settings": {
     "base": "${BASE_DIR}",
     "dir": "${PUBLISH_DIR}",
-    "cmd": ${BUILD_CMD}
+    "cmd": "${BUILD_CMD}"
   },
   "env": {
     "NODE_VERSION": "${NODE_VERSION}",
@@ -49,4 +49,4 @@ curl -sS -X POST \
   -H "Content-Type: application/json" \
   "https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID}/builds" >/dev/null
 
-echo "Build triggered. Open deploys dashboard to monitor progress: https://app.netlify.com/sites/<YOUR_SITE_NAME>/deploys"
+echo "Build triggered. Monitor progress in Netlify Deploys dashboard."
