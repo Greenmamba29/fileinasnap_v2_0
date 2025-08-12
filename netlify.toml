@@ -18,13 +18,12 @@
 [build.environment]
   NODE_VERSION = "20"
   NETLIFY_USE_YARN = "false"
-  # Multiple attempts to disable secrets scanning
+  NPM_FLAGS = "--legacy-peer-deps"
   SECRETS_SCAN_ENABLED = "false"
   NETLIFY_SECRETS_SCAN = "false"
   DISABLE_SECRETS_SCAN = "true"
   SKIP_SECRETS_SCAN = "true"
 
-# Try context-specific settings
 [context.production]
   environment = { SECRETS_SCAN_ENABLED = "false", NETLIFY_SECRETS_SCAN = "false" }
 
@@ -34,10 +33,11 @@
 [context.branch-deploy]
   environment = { SECRETS_SCAN_ENABLED = "false", NETLIFY_SECRETS_SCAN = "false" }
 
-# Security Headers
+# Security headers for all routes
 [[headers]]
   for = "/*"
   [headers.values]
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
@@ -45,7 +45,7 @@
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;"
 
-# Redirect all requests to index.html for React Router
+# Single-page app redirect to index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -62,6 +62,8 @@ const LandingPage = () => {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [dbHealth, setDbHealth] = useState({ ok: true, bucket_ok: true, rpc_ok: true, loading: true });
+  const [activeSection, setActiveSection] = useState('');
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Auto-redirect authenticated users to dashboard
   useEffect(() => {
@@ -74,7 +76,29 @@ const LandingPage = () => {
     // Handle scroll effects
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
+      const doc = document.documentElement;
+      const total = doc.scrollHeight - doc.clientHeight;
+      const progress = total > 0 ? (window.scrollY / total) * 100 : 0;
+      setScrollProgress(progress);
     };
+
+    // Scroll spy for sections
+    const sectionIds = ['features', 'security', 'demo', 'pricing', 'faq'];
+    const observers = [];
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) setActiveSection(id);
+          });
+        },
+        { rootMargin: '-40% 0px -55% 0px', threshold: 0.01 }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
 
     window.addEventListener('scroll', handleScroll);
 
@@ -91,6 +115,7 @@ const LandingPage = () => {
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      observers.forEach((o) => o.disconnect());
       clearInterval(testimonialInterval);
     };
   }, []);
@@ -276,6 +301,13 @@ const LandingPage = () => {
             }`}
             aria-label="Primary"
           >
+            {/* Scroll progress bar */}
+            <div className="absolute left-0 right-0 top-0 h-0.5 bg-transparent">
+              <div
+                className="h-0.5 bg-gradient-to-r from-blue-600 to-purple-600"
+                style={{ width: `${scrollProgress}%` }}
+              />
+            </div>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex items-center justify-between h-16">
                 {/* Logo - Smart Navigation */}
@@ -292,20 +324,20 @@ const LandingPage = () => {
                   <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                     <Upload className="w-5 h-5 text-white" />
                   </div>
-                  <span className="font-bold text-xl text-gray-900">FileInASnap</span>
+                  <span className="font-spaceGrotesk font-bold text-xl text-gray-900">FileInASnap</span>
                 </button>
 
                 {/* Desktop Navigation */}
-                <div className="hidden md:flex items-center space-x-8">
+                <div className="hidden md:flex items-center space-x-8 font-poppins">
                   {!isAuthenticated ? (
                     <>
-                      <a href="#features" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Features</a>
-                      <a href="#pricing" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Pricing</a>
-                      <a href="#faq" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">FAQ</a>
+                      <a href="#features" className={`text-gray-700 hover:text-blue-600 font-medium transition-colors ${activeSection==='features' ? 'text-blue-600' : ''}`}>Features</a>
+                      <a href="#pricing" className={`text-gray-700 hover:text-blue-600 font-medium transition-colors ${activeSection==='pricing' ? 'text-blue-600' : ''}`}>Pricing</a>
+                      <a href="#faq" className={`text-gray-700 hover:text-blue-600 font-medium transition-colors ${activeSection==='faq' ? 'text-blue-600' : ''}`}>FAQ</a>
                     </>
                   ) : (
                     <>
-                      <button onClick={() => window.location.href = '/dashboard'} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Photos</button>
+                      <button onClick={() => window.location.href = '/dashboard' } className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Photos</button>
                       <button onClick={() => setUploadModalOpen(true)} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Upload</button>
                     </>
                   )}
@@ -321,11 +353,10 @@ const LandingPage = () => {
                     <span className={`inline-block w-2 h-2 rounded-full ${health.dot}`}></span>
                     <span>{health.label}</span>
                   </span>
-                  
                   {!isAuthenticated ? (
                     <button
                       onClick={() => { setAuthMode('signup'); setShowAuthModal(true); }}
-                      className="rounded-lg bg-yellow-400 hover:bg-yellow-500 px-5 py-2 text-gray-900 text-sm font-semibold transition-all shadow-sm"
+                      className="rounded-lg bg-yellow-400 hover:bg-yellow-500 px-5 py-2 text-gray-900 text-sm font-semibold transition-all shadow-sm font-jakarta"
                     >
                       Sign Up
                     </button>
@@ -400,13 +431,13 @@ const LandingPage = () => {
                   </div>
                   
                   {/* Main Headline with Exact Line Breaks */}
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 mb-6">
+                  <h1 className="font-spaceGrotesk text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 mb-6">
                     <span className="block leading-tight">Organize your photos</span>
                     <span className="block leading-tight bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">automatically</span>
                     <span className="block leading-tight">with private AI</span>
                   </h1>
                   
-                  <p className="text-xl text-gray-700 mb-8 leading-relaxed">
+                  <p className="font-inter text-xl text-gray-700 mb-8 leading-relaxed">
                     FileInASnap auto-tags, builds a memory timeline, and secures every
                     photo, video, and document—so your memories are always easy to find.
                   </p>
@@ -439,13 +470,13 @@ const LandingPage = () => {
                       <>
                         <button
                           onClick={handleSignIn}
-                          className="h-11 px-5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 focus:ring-2 focus:ring-indigo-400/60 font-semibold transition-all shadow-lg hover:shadow-xl text-sm"
+                          className="h-11 px-5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 focus:ring-2 focus:ring-indigo-400/60 font-semibold transition-all shadow-lg hover:shadow-xl text-sm font-jakarta"
                         >
                           Get Started Free
                         </button>
                         <a
                           href="#demo"
-                          className="h-11 px-5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 font-semibold transition-all shadow-sm flex items-center justify-center text-sm"
+                          className="h-11 px-5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 font-semibold transition-all shadow-sm flex items-center justify-center text-sm font-poppins"
                         >
                           Watch Demo
                         </a>
@@ -730,7 +761,7 @@ const LandingPage = () => {
           <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-2xl border p-6">
               <h3 className="font-semibold">Free</h3>
-              <p className="mt-2 text-2xl font-bold">$0<span className="text-base font-normal">/month</span></p>
+              <p className="mt-2 text-2xl font-bold font-outfit">$0<span className="text-base font-normal">/month</span></p>
               <ul className="mt-4 space-y-2 text-sm text-neutral-700">
                 <li>✓ 1,000 photos</li>
                 <li>✓ Basic AI tagging</li>
@@ -743,7 +774,7 @@ const LandingPage = () => {
                 <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">Popular</span>
               </div>
               <h3 className="font-semibold">Pro</h3>
-              <p className="mt-2 text-2xl font-bold">$9<span className="text-base font-normal">/month</span></p>
+              <p className="mt-2 text-2xl font-bold font-outfit">$9<span className="text-base font-normal">/month</span></p>
               <ul className="mt-4 space-y-2 text-sm text-neutral-700">
                 <li>✓ Unlimited photos</li>
                 <li>✓ Advanced AI features</li>
@@ -754,7 +785,7 @@ const LandingPage = () => {
             </div>
             <div className="rounded-2xl border p-6">
               <h3 className="font-semibold">Family</h3>
-              <p className="mt-2 text-2xl font-bold">$19<span className="text-base font-normal">month</span></p>
+              <p className="mt-2 text-2xl font-bold font-outfit">$19<span className="text-base font-normal">month</span></p>
               <ul className="mt-4 space-y-2 text-sm text-neutral-700">
                 <li>✓ Everything in Pro</li>
                 <li>✓ Up to 6 members</li>
