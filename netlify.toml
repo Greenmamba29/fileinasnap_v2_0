@@ -32,18 +32,18 @@
 [context.branch-deploy]
   environment = { SECRETS_SCAN_ENABLED = "false", NETLIFY_SECRETS_SCAN = "false" }
 
-# Security headers for all routes
+# Security headers (production defaults)
 [[headers]]
   for = "/*"
   [headers.values]
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
     X-Content-Type-Options = "nosniff"
-    X-Frame-Options = "DENY"
+    X-Frame-Options = "SAMEORIGIN"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     X-XSS-Protection = "0"
 
-# Single-page app redirect to index.html
+# SPA redirect
 [[redirects]]
   from = "/*"
   to = "/index.html"
