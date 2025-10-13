@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import UploadModal from '../components/upload/UploadModal';
+import analytics from '../utils/analytics';
 import { 
   Upload, 
   FileText, 
@@ -63,8 +64,10 @@ const Dashboard = () => {
   const fileInputRef = useRef(null);
   const dropZoneRef = useRef(null);
 
-  // Fetch data on component mount
+  // Fetch data on component mount and track page view
   useEffect(() => {
+    analytics.page('Dashboard');
+    analytics.events.dashboardViewed();
     loadDashboardData();
   }, []);
 

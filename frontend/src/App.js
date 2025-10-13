@@ -7,6 +7,8 @@ import { Badge } from './components/ui/badge';
 import { AuthModal } from './components/AuthModal';
 import AuthTester from './components/auth/AuthTester';
 import DashboardPage from './pages/DashboardPage';
+import analytics from './utils/analytics';
+import usePageTracking from './hooks/usePageTracking';
 import {
   Upload, 
   Sparkles, 
@@ -65,12 +67,25 @@ const LandingPage = () => {
   const [activeSection, setActiveSection] = useState('');
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  // Auto-redirect authenticated users to dashboard
+  // Track page view on component mount
   useEffect(() => {
-    if (isAuthenticated && !authLoading) {
+    analytics.page('Landing Page');
+  }, []);
+
+  // Auto-redirect authenticated users to dashboard and identify user
+  useEffect(() => {
+    if (isAuthenticated && !authLoading && user) {
+      // Identify user for analytics
+      analytics.identify(user.id, {
+        email: user.email,
+        created_at: user.created_at,
+        email_confirmed: user.email_confirmed_at ? true : false,
+      });
+      
+      analytics.events.dashboardViewed();
       window.location.href = '/dashboard';
     }
-  }, [isAuthenticated, authLoading]);
+  }, [isAuthenticated, authLoading, user]);
 
   useEffect(() => {
     // Handle scroll effects
@@ -91,7 +106,13 @@ const LandingPage = () => {
       const obs = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting) setActiveSection(id);
+            if (entry.isIntersecting) {
+              setActiveSection(id);
+              // Track section views
+              if (id === 'features') analytics.events.featureClicked('Features Section');
+              if (id === 'pricing') analytics.events.pricingViewed();
+              if (id === 'faq') analytics.events.faqViewed();
+            }
           });
         },
         { rootMargin: '-40% 0px -55% 0px', threshold: 0.01 }
@@ -104,7 +125,9 @@ const LandingPage = () => {
 
     // Testimonial carousel
     const testimonialInterval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+      const newIndex = (currentTestimonial + 1) % testimonials.length;
+      setCurrentTestimonial(newIndex);
+      analytics.events.testimonialViewed(newIndex);
     }, 5000);
 
     // DB health check (relative path so it works with current :3000 proxy/setup)
@@ -121,11 +144,16 @@ const LandingPage = () => {
   }, []);
   
   const handleSignIn = () => {
+    analytics.events.ctaClicked('Sign In', 'Navigation');
     setAuthMode('signin');
     setShowAuthModal(true);
   };
   
   const handleSignOut = async () => {
+    if (user) {
+      analytics.events.userSignedOut(user.id);
+    }
+    analytics.reset();
     await signOut();
   };
 
@@ -284,7 +312,10 @@ const LandingPage = () => {
       {uploadModalOpen && (
         <UploadModal
           isOpen={uploadModalOpen}
-          onClose={() => setUploadModalOpen(false)}
+          onClose={() => {
+            analytics.events.uploadModalClosed();
+            setUploadModalOpen(false);
+          }}
         />
       )}
 
@@ -337,8 +368,8 @@ const LandingPage = () => {
                     </>
                   ) : (
                     <>
-                      <button onClick={() => window.location.href = '/dashboard' } className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Photos</button>
-                      <button onClick={() => setUploadModalOpen(true)} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Upload</button>
+                      <button onClick={() => { analytics.events.ctaClicked('Photos', 'Navigation'); window.location.href = '/dashboard'; }} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Photos</button>
+                      <button onClick={() => { analytics.events.uploadModalOpened(); setUploadModalOpen(true); }} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Upload</button>
                     </>
                   )}
                   <a href="/blog" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Blog</a>
@@ -355,7 +386,11 @@ const LandingPage = () => {
                   </span>
                   {!isAuthenticated ? (
                     <button
-                      onClick={() => { setAuthMode('signup'); setShowAuthModal(true); }}
+                      onClick={() => { 
+                        analytics.events.ctaClicked('Sign Up', 'Navigation');
+                        setAuthMode('signup'); 
+                        setShowAuthModal(true); 
+                      }}
                       className="rounded-lg bg-yellow-400 hover:bg-yellow-500 px-5 py-2 text-gray-900 text-sm font-semibold transition-all shadow-sm font-jakarta"
                     >
                       Sign Up
@@ -469,13 +504,17 @@ const LandingPage = () => {
                     {!isAuthenticated ? (
                       <>
                         <button
-                          onClick={handleSignIn}
+                          onClick={() => {
+                            analytics.events.ctaClicked('Get Started Free', 'Hero');
+                            handleSignIn();
+                          }}
                           className="h-11 px-5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 focus:ring-2 focus:ring-indigo-400/60 font-semibold transition-all shadow-lg hover:shadow-xl text-sm font-jakarta"
                         >
                           Get Started Free
                         </button>
                         <a
                           href="#demo"
+                          onClick={() => analytics.events.ctaClicked('Watch Demo', 'Hero')}
                           className="h-11 px-5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 font-semibold transition-all shadow-sm flex items-center justify-center text-sm font-poppins"
                         >
                           Watch Demo
@@ -855,15 +894,24 @@ const LandingPage = () => {
   );
 };
 
+// Component that handles page tracking
+const AppWithTracking = () => {
+  usePageTracking();
+  
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/auth-test" element={<AuthTester />} />
+      <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+      <Route path="*" element={<LandingPage />} />
+    </Routes>
+  );
+};
+
 const App = () => (
   <AuthProvider>
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/auth-test" element={<AuthTester />} />
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-        <Route path="*" element={<LandingPage />} />
-      </Routes>
+      <AppWithTracking />
     </BrowserRouter>
   </AuthProvider>
 );

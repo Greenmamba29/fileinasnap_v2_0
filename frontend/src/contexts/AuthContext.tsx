@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
+import analytics from '../utils/analytics';
 
 // Initialize Supabase client with your credentials
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL!;
@@ -71,12 +72,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Check subscription when user signs in
         if (session && event === 'SIGNED_IN') {
+          // Track sign in event
+          analytics.events.userSignedIn('email', session.user.id, {
+            email: session.user.email,
+            created_at: session.user.created_at,
+            email_confirmed: session.user.email_confirmed_at ? true : false,
+          });
+          
+          // Identify user for analytics
+          analytics.identify(session.user.id, {
+            email: session.user.email,
+            created_at: session.user.created_at,
+            email_confirmed: session.user.email_confirmed_at ? true : false,
+          });
+          
           await checkSubscription();
           // Redirect to dashboard after successful sign in
           if (window.location.pathname === '/' || window.location.pathname === '/auth-test') {
             window.location.href = '/dashboard';
           }
         } else if (!session) {
+          // Reset analytics on sign out
+          analytics.reset();
           setSubscription({
             subscribed: false,
             subscription_tier: null,
@@ -103,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, fullName?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -113,6 +130,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     });
+    
+    // Track signup attempt
+    if (!error && data.user) {
+      analytics.events.userSignedUp('email', data.user.id, {
+        email: data.user.email,
+        full_name: fullName || '',
+        created_at: data.user.created_at,
+      });
+    }
+    
     return { error };
   };
 

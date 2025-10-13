@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { authedFetch } from '../../lib/authedFetch';
 import { apiService } from '../../lib/apiService';
+import analytics from '../../utils/analytics';
 import { 
   Upload, 
   File, 
@@ -120,6 +121,14 @@ const UploadModal = ({ isOpen, onClose, selectedFolder: initialFolder, onUploadC
                   mime: file.type,
                 }),
               });
+              
+              // Track file upload
+              analytics.events.fileUploaded(
+                file.type || 'unknown',
+                file.size,
+                file.name
+              );
+              
               resolve();
             } else reject(new Error(`Upload failed (${xhr.status})`));
           };
